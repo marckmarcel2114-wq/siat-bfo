@@ -5,48 +5,52 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { store } from '@/routes/password/confirm';
+import { store } from '@/routes/confirm-password';
 import { Form, Head } from '@inertiajs/vue3';
+
+defineProps<{
+    routeName: string;
+}>();
 </script>
 
 <template>
     <AuthLayout
-        title="Confirm your password"
-        description="This is a secure area of the application. Please confirm your password before continuing."
+        title="Confirm password"
+        description="This action requires password confirmation. Please enter your password to continue."
     >
         <Head title="Confirm password" />
 
         <Form
-            v-bind="store.form()"
-            reset-on-success
+            v-bind="store.form({ routeName })"
+            :reset-on-success="['password']"
             v-slot="{ errors, processing }"
+            class="space-y-6"
         >
-            <div class="space-y-6">
+            <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label for="password">Password</Label>
                     <Input
                         id="password"
                         type="password"
                         name="password"
-                        class="mt-1 block w-full"
                         required
+                        :tabindex="1"
                         autocomplete="current-password"
-                        autofocus
+                        placeholder="Password"
                     />
-
                     <InputError :message="errors.password" />
                 </div>
 
-                <div class="flex items-center">
-                    <Button
-                        class="w-full"
-                        :disabled="processing"
-                        data-test="confirm-password-button"
-                    >
-                        <Spinner v-if="processing" />
-                        Confirm Password
-                    </Button>
-                </div>
+                <Button
+                    type="submit"
+                    class="w-full"
+                    :tabindex="2"
+                    :disabled="processing"
+                    data-test="confirm-password-button"
+                >
+                    <Spinner v-if="processing" />
+                    Confirm
+                </Button>
             </div>
         </Form>
     </AuthLayout>

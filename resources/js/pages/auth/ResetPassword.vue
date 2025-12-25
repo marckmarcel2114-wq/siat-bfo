@@ -1,74 +1,72 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { update } from '@/routes/password';
+import { login } from '@/routes';
+import { store } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
 
-const props = defineProps<{
-    token: string;
+defineProps<{
     email: string;
+    token: string;
 }>();
-
-const inputEmail = ref(props.email);
 </script>
 
 <template>
     <AuthLayout
         title="Reset password"
-        description="Please enter your new password below"
+        description="Enter a new password and confirm it below"
     >
         <Head title="Reset password" />
 
         <Form
-            v-bind="update.form()"
-            :transform="(data) => ({ ...data, token, email })"
+            v-bind="store.form({ email, token })"
             :reset-on-success="['password', 'password_confirmation']"
             v-slot="{ errors, processing }"
+            class="space-y-6"
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="email">Email</Label>
+                    <Label for="email">Email address</Label>
                     <Input
                         id="email"
                         type="email"
                         name="email"
+                        :value="email"
+                        disabled
+                        :tabindex="1"
                         autocomplete="email"
-                        v-model="inputEmail"
-                        class="mt-1 block w-full"
-                        readonly
+                        placeholder="email@example.com"
                     />
-                    <InputError :message="errors.email" class="mt-2" />
+                    <InputError :message="errors.email" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Password</Label>
-                    <Input
+                    <Label for="password">New password</Label>
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
+                        required
+                        :tabindex="2"
                         autocomplete="new-password"
-                        class="mt-1 block w-full"
-                        autofocus
                         placeholder="Password"
                     />
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">
-                        Confirm Password
-                    </Label>
-                    <Input
+                    <Label for="password_confirmation">Confirm new password</Label>
+                    <PasswordInput
                         id="password_confirmation"
-                        type="password"
                         name="password_confirmation"
+                        required
+                        :tabindex="3"
                         autocomplete="new-password"
-                        class="mt-1 block w-full"
                         placeholder="Confirm password"
                     />
                     <InputError :message="errors.password_confirmation" />
@@ -76,13 +74,19 @@ const inputEmail = ref(props.email);
 
                 <Button
                     type="submit"
-                    class="mt-4 w-full"
+                    class="w-full"
+                    :tabindex="4"
                     :disabled="processing"
                     data-test="reset-password-button"
                 >
                     <Spinner v-if="processing" />
                     Reset password
                 </Button>
+            </div>
+
+            <div class="text-center text-sm text-muted-foreground">
+                <span>Or, return to</span>
+                <TextLink :href="login()">log in</TextLink>
             </div>
         </Form>
     </AuthLayout>
