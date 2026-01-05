@@ -39,8 +39,8 @@ const user = page.props.auth.user;
         <SettingsLayout>
             <div class="flex flex-col space-y-6">
                 <HeadingSmall
-                    title="Profile information"
-                    description="Update your name and email address"
+                    title="Información de Perfil"
+                    description="Actualiza tu nombre y dirección de correo electrónico"
                 />
 
                 <Form
@@ -49,7 +49,7 @@ const user = page.props.auth.user;
                     v-slot="{ errors, processing, recentlySuccessful }"
                 >
                     <div class="grid gap-2">
-                        <Label for="name">Name</Label>
+                        <Label for="name">Nombre</Label>
                         <Input
                             id="name"
                             class="mt-1 block w-full"
@@ -63,7 +63,7 @@ const user = page.props.auth.user;
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="email">Email address</Label>
+                        <Label for="email">Dirección de Correo</Label>
                         <Input
                             id="email"
                             type="email"
@@ -102,7 +102,7 @@ const user = page.props.auth.user;
                         <Button
                             :disabled="processing"
                             data-test="update-profile-button"
-                            >Save</Button
+                            >Guardar</Button
                         >
 
                         <Transition

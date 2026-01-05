@@ -13,6 +13,10 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
+    // Transient properties for history logging
+    public $historyNote = null;
+    public $historyAssignmentType = 'permanent';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,14 +26,19 @@ class User extends Authenticatable
         'name',
         'first_name',
         'last_name',
+        'username',
         'email',
         'password',
         'role',
         'city_id',
+        'branch_id',
         'position',
+        'job_title_id',
         'ad_guid',
         'phone',
         'is_active',
+        'hire_date',
+        'termination_date',
     ];
 
     /**
@@ -66,6 +75,16 @@ class User extends Authenticatable
         return $this->belongsTo(City::class);
     }
     
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function ubicacion()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id'); // Match legacy FK to new Concept
+    }
+    
     public function assetAssignments()
     {
         return $this->hasMany(AssetAssignment::class);
@@ -81,6 +100,16 @@ class User extends Authenticatable
         return $this->hasMany(AdminTask::class, 'created_by');
     }
     
+    public function jobTitle()
+    {
+        return $this->belongsTo(JobTitle::class);
+    }
+
+    public function jobHistory()
+    {
+        return $this->hasMany(UserJobHistory::class)->latest('start_date');
+    }
+
     public function assignedTasks()
     {
         return $this->hasMany(AdminTask::class, 'assigned_user_id');

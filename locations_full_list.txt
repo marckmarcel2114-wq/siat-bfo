@@ -1,0 +1,54 @@
+ID | Type | Name | Code
+--------------------------
+610 | Sucursal | Sucursal Oruro | 
+611 | Agencia | Agencia Av. del Ejército | 
+612 | Agencia | Agencia Mercado Bolívar | 
+613 | Oficina Externa | Oficina Externa Escara | 
+614 | Sucursal | Sucursal La Paz | 
+615 | Agencia | Agencia Arce | 
+616 | Agencia | Agencia Tumusla | 
+617 | Agencia | Agencia Villa Fátima | 
+618 | Agencia | Agencia San Miguel | 
+619 | Agencia | Agencia Achumani | 
+620 | Agencia | Agencia Entre Ríos | 
+621 | Sucursal | Sucursal El Alto | 
+622 | Agencia | Agencia 16 de Julio | 
+623 | Agencia | Agencia Río Seco | 
+624 | Agencia | Agencia Cruce Villa Adela | 
+625 | Agencia | Agencia Villa Dolores | 
+626 | Agencia | Aeropuerto El Alto | 
+627 | Oficina Externa | Oficina Externa Puerto Carabuco | 
+628 | Oficina Externa | Oficina Externa Huatajata | 
+629 | Sucursal | Sucursal Cochabamba | 
+630 | Agencia | Agencia 14 de Septiembre | 
+631 | Agencia | Agencia América | 
+632 | Agencia | Agencia La Cancha | 
+633 | Agencia | Agencia Quillacollo | 
+634 | Agencia | Agencia Sacaba | 
+635 | Agencia | Agencia Norte | 
+636 | Oficina Externa | Oficina Externa Tacachi | 
+637 | Oficina Externa | Oficina Externa Bolivar | 
+638 | Sucursal | Sucursal Sucre | 
+639 | Agencia | Agencia Mercado Campesino | 
+640 | Sucursal | Sucursal Santa Cruz | 
+641 | Agencia | Agencia Vírgen de Cotoca | 
+642 | Agencia | Agencia Monseñor Rivero | 
+643 | Agencia | Agencia Mercado Abasto | 
+644 | Agencia | Agencia Plan 3000 | 
+645 | Agencia | Agencia La Ramada | 
+646 | Agencia | Agencia Mutualista | 
+647 | Agencia | Agencia Montero | 
+648 | Agencia | Agencia Villa Primero de Mayo | 
+649 | Agencia | Aeropuerto Viru Viru | 
+650 | Agencia | Genex | 
+651 | Sucursal | Sucursal Tarija | 
+652 | Agencia | Agencia Bermejo | 
+653 | Sucursal | Sucursal Potosí | 
+654 | Agencia | Agencia Villazón | 
+655 | ATM | ATM Edificio Señor de Mayo | 
+656 | ATM | ATM Cala Cala | 
+657 | ATM | ATM Hotel Cochabamba | 
+658 | ATM | ATM El Prado Cochabamba II | 
+659 | ATM | ATM Aeropuerto Viru Viru | 
+660 | ATM | ATM GENEX | 
+661 | Agencia | Agencia Mercado Campesino | 

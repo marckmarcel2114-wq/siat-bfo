@@ -18,7 +18,7 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 
 const props = defineProps<{
-    cities: Array<{ id: number; name: string }>;
+    cities: Array<{ id: number; nombre: string }>;
     types: Array<{ id: number; name: string }>;
 }>();
 
@@ -29,15 +29,15 @@ const loading = ref(false);
 const errors = ref<Record<string, string>>({});
 
 const form = ref({
-    city_id: '',
+    ciudad_id: '',
     branch_type_id: '',
-    code: '',
-    name: '',
-    address: '',
+    codigo: '',
+    nombre: '',
+    direccion: '',
 });
 
 const resetForm = () => {
-    form.value = { city_id: '', branch_type_id: '', code: '', name: '', address: '' };
+    form.value = { ciudad_id: '', branch_type_id: '', codigo: '', nombre: '', direccion: '' };
     errors.value = {};
 };
 
@@ -105,17 +105,17 @@ const submit = async () => {
                 <div class="grid grid-cols-2 gap-4">
                     <div class="grid gap-2">
                         <Label class="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Ciudad</Label>
-                        <Select v-model="form.city_id">
+                        <Select v-model="form.ciudad_id">
                             <SelectTrigger class="h-11 bg-background/50">
                                 <SelectValue placeholder="Seleccione..." />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem v-for="city in cities" :key="city.id" :value="city.id.toString()">
-                                    {{ city.name }}
+                                    {{ city.nombre }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
-                        <p v-if="errors.city_id" class="text-xs font-semibold text-destructive">{{ errors.city_id }}</p>
+                        <p v-if="errors.ciudad_id" class="text-xs font-semibold text-destructive">{{ errors.ciudad_id }}</p>
                     </div>
                     <div class="grid gap-2">
                         <Label class="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Tipo</Label>
@@ -136,18 +136,18 @@ const submit = async () => {
                 <div class="grid grid-cols-3 gap-4">
                     <div class="grid gap-2 col-span-1">
                         <Label class="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Código</Label>
-                        <Input v-model="form.code" placeholder="Ej. 001" class="h-11 bg-background/50 font-mono" />
+                        <Input v-model="form.codigo" placeholder="Ej. 001" class="h-11 bg-background/50 font-mono" />
                     </div>
                     <div class="grid gap-2 col-span-2">
                         <Label class="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Nombre</Label>
-                        <Input v-model="form.name" placeholder="Ej. Central" class="h-11 bg-background/50" />
+                        <Input v-model="form.nombre" placeholder="Ej. Central" class="h-11 bg-background/50" />
                     </div>
                 </div>
-                <p v-if="errors.name" class="text-xs font-semibold text-destructive">{{ errors.name }}</p>
+                <p v-if="errors.nombre" class="text-xs font-semibold text-destructive">{{ errors.nombre }}</p>
 
                 <div class="grid gap-2">
                     <Label class="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Dirección</Label>
-                    <Input v-model="form.address" placeholder="Ej. Av. Blanco Galindo..." class="h-11 bg-background/50" />
+                    <Input v-model="form.direccion" placeholder="Ej. Av. Blanco Galindo..." class="h-11 bg-background/50" />
                 </div>
             </div>
             <DialogFooter>

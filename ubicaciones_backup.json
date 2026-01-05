@@ -1,0 +1,767 @@
+[
+    {
+        "id": 610,
+        "ciudad_id": 3,
+        "tipo_sucursal_id": 1,
+        "nombre": "Sucursal Oruro",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 611,
+        "ciudad_id": 3,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Av. del Ej\u00e9rcito",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 612,
+        "ciudad_id": 3,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Mercado Bol\u00edvar",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 613,
+        "ciudad_id": 3,
+        "tipo_sucursal_id": 4,
+        "nombre": "Oficina Externa Escara",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:39:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 614,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 1,
+        "nombre": "Sucursal La Paz",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 615,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Arce",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 616,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Tumusla",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 617,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Villa F\u00e1tima",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 618,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia San Miguel",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 619,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Achumani",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 620,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Entre R\u00edos",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 621,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 1,
+        "nombre": "Sucursal El Alto",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 622,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia 16 de Julio",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 623,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia R\u00edo Seco",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 624,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Cruce Villa Adela",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 625,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Villa Dolores",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 626,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 2,
+        "nombre": "Aeropuerto El Alto",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 627,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 4,
+        "nombre": "Oficina Externa Puerto Carabuco",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 628,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 4,
+        "nombre": "Oficina Externa Huatajata",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 629,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 1,
+        "nombre": "Sucursal Cochabamba",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 630,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia 14 de Septiembre",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 631,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Am\u00e9rica",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 632,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia La Cancha",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 633,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Quillacollo",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 634,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Sacaba",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 635,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Norte",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 636,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 4,
+        "nombre": "Oficina Externa Tacachi",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 637,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 4,
+        "nombre": "Oficina Externa Bolivar",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 638,
+        "ciudad_id": 5,
+        "tipo_sucursal_id": 1,
+        "nombre": "Sucursal Sucre",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 639,
+        "ciudad_id": 5,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Mercado Campesino",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 640,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 1,
+        "nombre": "Sucursal Santa Cruz",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 641,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia V\u00edrgen de Cotoca",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 642,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Monse\u00f1or Rivero",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 643,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Mercado Abasto",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 644,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Plan 3000",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 645,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia La Ramada",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 646,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Mutualista",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 647,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Montero",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 648,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "Agencia Villa Primero de Mayo",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:51:08.000000Z"
+    },
+    {
+        "id": 649,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 2,
+        "nombre": "Aeropuerto Viru Viru",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 650,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 2,
+        "nombre": "Genex",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-02T16:43:35.000000Z",
+        "updated_at": "2026-01-02T16:43:35.000000Z"
+    },
+    {
+        "id": 651,
+        "ciudad_id": 7,
+        "tipo_sucursal_id": 1,
+        "nombre": "Sucursal Tarija",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 652,
+        "ciudad_id": 7,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Bermejo",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:11.000000Z"
+    },
+    {
+        "id": 653,
+        "ciudad_id": 8,
+        "tipo_sucursal_id": 1,
+        "nombre": "Sucursal Potos\u00ed",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:28.000000Z",
+        "updated_at": "2026-01-04T02:29:12.000000Z"
+    },
+    {
+        "id": 654,
+        "ciudad_id": 8,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Villaz\u00f3n",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:28.000000Z",
+        "updated_at": "2026-01-04T02:29:12.000000Z"
+    },
+    {
+        "id": 655,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM Edificio Se\u00f1or de Mayo",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2025-12-28T23:48:27.000000Z"
+    },
+    {
+        "id": 656,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM Cala Cala",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2025-12-28T23:48:27.000000Z"
+    },
+    {
+        "id": 657,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM Hotel Cochabamba",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2025-12-28T23:48:27.000000Z"
+    },
+    {
+        "id": 658,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM El Prado Cochabamba II",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2025-12-28T23:48:27.000000Z"
+    },
+    {
+        "id": 659,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM Aeropuerto Viru Viru",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2025-12-28T23:48:27.000000Z"
+    },
+    {
+        "id": 660,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM GENEX",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2025-12-28T23:48:27.000000Z"
+    },
+    {
+        "id": 661,
+        "ciudad_id": 7,
+        "tipo_sucursal_id": 2,
+        "nombre": "Agencia Mercado Campesino",
+        "codigo_ubicacion": null,
+        "created_at": "2025-12-28T23:48:27.000000Z",
+        "updated_at": "2026-01-04T02:29:12.000000Z"
+    },
+    {
+        "id": 662,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Sucursal La Paz",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 663,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Arce",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 664,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Tumusla",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 665,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Villa F\u00e1tima",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 666,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia San Miguel",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 667,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Achumani",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 668,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Entre R\u00edos",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 669,
+        "ciudad_id": 1,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM Desconocido",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 671,
+        "ciudad_id": 3,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Sucursal Oruro",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 672,
+        "ciudad_id": 3,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Av. del Ej\u00e9rcito",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 673,
+        "ciudad_id": 3,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Mercado Bol\u00edvar",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 674,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia 14 de septiembre",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 675,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Am\u00e9rica",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 676,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia La Cancha",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 677,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Quillacollo",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 678,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Sacaba",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 679,
+        "ciudad_id": 4,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Norte",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 680,
+        "ciudad_id": 5,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Sucursal Sucre",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 681,
+        "ciudad_id": 5,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Mercado Campesino",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 682,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Sucursal Santa Cruz",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 683,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia V\u00edrgen de Cotoca",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 684,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Monse\u00f1or Rivero",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 685,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Mercado Abasto",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 686,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Plan 3000",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 687,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia La Ramada",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 688,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Mutualista",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 689,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Montero",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 690,
+        "ciudad_id": 6,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Villa Primero de Mayo",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 691,
+        "ciudad_id": 7,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Sucursal Tarija",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 692,
+        "ciudad_id": 7,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Mercado Campesino",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 693,
+        "ciudad_id": 7,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Bermejo",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 694,
+        "ciudad_id": 8,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Sucursal Potos\u00ed",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    },
+    {
+        "id": 695,
+        "ciudad_id": 8,
+        "tipo_sucursal_id": 3,
+        "nombre": "ATM - Agencia Villaz\u00f3n",
+        "codigo_ubicacion": null,
+        "created_at": "2026-01-04T03:05:33.000000Z",
+        "updated_at": "2026-01-04T03:05:33.000000Z"
+    }
+]

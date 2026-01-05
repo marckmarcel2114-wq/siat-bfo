@@ -1,0 +1,9 @@
+Checking for misclassified ATMs marked as Agencias...
+
+Checking for locations that DON'T have Agencia/Sucursal in name but ARE marked as Agencia...
+- [Aeropuerto El Alto] (ID: 626) is marked as Agencia but name lacks keyword.
+- [Aeropuerto Viru Viru] (ID: 649) is marked as Agencia but name lacks keyword.
+- [Genex] (ID: 650) is marked as Agencia but name lacks keyword.
+
+Total current ATMs: 6
+Total current Agencias: 33

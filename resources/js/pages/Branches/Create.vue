@@ -8,13 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, Building, Plus } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
-import CityQuickAdd from '@/Components/QuickAdd/CityQuickAdd.vue';
-import BranchTypeQuickAdd from '@/Components/QuickAdd/BranchTypeQuickAdd.vue';
+import CityQuickAdd from '@/components/QuickAdd/CityQuickAdd.vue';
+import BranchTypeQuickAdd from '@/components/QuickAdd/BranchTypeQuickAdd.vue';
 import { ref } from 'vue';
 
 const props = defineProps<{
-    cities: Array<{ id: number; name: string }>;
-    types: Array<{ id: number; name: string }>;
+    cities: Array<{ id: number; nombre: string }>;
+    types: Array<{ id: number; nombre: string }>;
 }>();
 
 const localCities = ref([...props.cities]);
@@ -22,21 +22,21 @@ const localTypes = ref([...props.types]);
 
 const onCitySuccess = (city: any) => {
     localCities.value.push(city);
-    form.city_id = city.id.toString();
+    form.ciudad_id = city.id.toString();
 };
 
 const onTypeSuccess = (type: any) => {
     localTypes.value.push(type);
-    form.branch_type_id = type.id.toString();
+    form.tipo_sucursal_id = type.id.toString();
 };
 
 const form = useForm({
-    code: '',
-    name: '',
-    city_id: undefined as string | undefined,
-    branch_type_id: undefined as string | undefined,
-    address: '',
-    phones: '',
+    codigo_ubicacion: '',
+    nombre: '',
+    ciudad_id: undefined as string | undefined,
+    tipo_sucursal_id: undefined as string | undefined,
+    direccion: '',
+    telefonos: '',
 });
 
 const submit = () => {
@@ -84,27 +84,27 @@ const breadcrumbs = [
                     
                     <CardContent class="p-6 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <Label for="code" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Código Agencia</Label>
+                             <div class="space-y-2">
+                                <Label for="codigo_ubicacion" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Código Agencia</Label>
                                 <Input 
-                                    id="code" 
-                                    v-model="form.code" 
+                                    id="codigo_ubicacion" 
+                                    v-model="form.codigo_ubicacion" 
                                     class="h-11 bg-background/50 focus-visible:ring-blue-500 shadow-sm font-mono uppercase"
                                     placeholder="Ej. AG-001"
                                 />
-                                <p v-if="form.errors.code" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.code }}</p>
+                                <p v-if="form.errors.codigo_ubicacion" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.codigo_ubicacion }}</p>
                             </div>
 
                             <div class="md:col-span-2 space-y-2">
-                                <Label for="name" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Nombre de la Sucursal</Label>
+                                <Label for="nombre" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Nombre de la Sucursal</Label>
                                 <Input 
-                                    id="name" 
-                                    v-model="form.name" 
+                                    id="nombre" 
+                                    v-model="form.nombre" 
                                     required 
                                     class="h-11 bg-background/50 focus-visible:ring-blue-500 shadow-sm"
                                     placeholder="Ej. Agencia Central"
                                 />
-                                <p v-if="form.errors.name" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.name }}</p>
+                                <p v-if="form.errors.nombre" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.nombre }}</p>
                             </div>
                         </div>
 
@@ -112,25 +112,25 @@ const breadcrumbs = [
                             <div class="space-y-2">
                                 <Label for="city" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Ciudad</Label>
                                 <div class="flex gap-2">
-                                    <Select v-model="form.city_id">
+                                    <Select v-model="form.ciudad_id">
                                         <SelectTrigger id="city" class="h-11 bg-background/50 flex-1">
                                             <SelectValue placeholder="Seleccione ciudad" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem v-for="city in localCities" :key="city.id" :value="city.id.toString()">
-                                                {{ city.name }}
+                                                {{ city.nombre }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <CityQuickAdd @success="onCitySuccess" />
                                 </div>
-                                <p v-if="form.errors.city_id" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.city_id }}</p>
+                                <p v-if="form.errors.ciudad_id" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.ciudad_id }}</p>
                             </div>
 
-                            <div class="space-y-2">
+                             <div class="space-y-2">
                                 <Label for="type" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Tipo de Sucursal</Label>
                                 <div class="flex gap-2">
-                                    <Select v-model="form.branch_type_id">
+                                    <Select v-model="form.tipo_sucursal_id">
                                         <SelectTrigger id="type" class="h-11 bg-background/50 flex-1">
                                             <SelectValue placeholder="Seleccione tipo" />
                                         </SelectTrigger>
@@ -139,39 +139,39 @@ const breadcrumbs = [
                                                 v-for="type in localTypes" 
                                                 :key="type.id" 
                                                 :value="type.id.toString()"
-                                                v-show="type.name !== 'ATM'"
+                                                v-show="type.nombre !== 'ATM'"
                                             >
-                                                {{ type.name }}
+                                                {{ type.nombre }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <BranchTypeQuickAdd @success="onTypeSuccess" />
                                 </div>
-                                <p v-if="form.errors.branch_type_id" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.branch_type_id }}</p>
+                                <p v-if="form.errors.tipo_sucursal_id" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.tipo_sucursal_id }}</p>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <Label for="phones" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Teléfonos</Label>
+                                <Label for="telefonos" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Teléfonos</Label>
                                 <Input 
-                                    id="phones" 
-                                    v-model="form.phones" 
+                                    id="telefonos" 
+                                    v-model="form.telefonos" 
                                     class="h-11 bg-background/50 focus-visible:ring-blue-500 shadow-sm"
                                     placeholder="Ej. 2244556, 70712345"
                                 />
-                                <p v-if="form.errors.phones" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.phones }}</p>
+                                <p v-if="form.errors.telefonos" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.telefonos }}</p>
                             </div>
 
                             <div class="space-y-2">
-                                <Label for="address" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Dirección</Label>
+                                <Label for="direccion" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Dirección</Label>
                                 <Input 
-                                    id="address" 
-                                    v-model="form.address" 
+                                    id="direccion" 
+                                    v-model="form.direccion" 
                                     class="h-11 bg-background/50 focus-visible:ring-blue-500 shadow-sm"
                                     placeholder="Ej. Calle Bolívar #456"
                                 />
-                                <p v-if="form.errors.address" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.address }}</p>
+                                <p v-if="form.errors.direccion" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.direccion }}</p>
                             </div>
                         </div>
                     </CardContent>

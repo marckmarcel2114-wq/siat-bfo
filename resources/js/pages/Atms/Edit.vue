@@ -9,49 +9,65 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { ArrowLeft, Save, Monitor, Plus } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 import { computed, watch, ref } from 'vue';
-import CityQuickAdd from '@/Components/QuickAdd/CityQuickAdd.vue';
-import BranchQuickAdd from '@/Components/QuickAdd/BranchQuickAdd.vue';
+import CityQuickAdd from '@/components/QuickAdd/CityQuickAdd.vue';
+import BranchQuickAdd from '@/components/QuickAdd/BranchQuickAdd.vue';
 
 const props = defineProps<{
-    atm: any;
-    cities: Array<{ id: number; name: string }>;
-    potentialParents: Array<{ id: number; name: string; city_id: number; city: { name: string } }>;
-    branchTypes: Array<{ id: number; name: string }>;
+    atm: {
+        id: number;
+        nombre: string;
+        ciudad_id: number;
+        padre_id: number | null;
+        direccion: string;
+        telefonos: string;
+    };
+    cities: Array<{ id: number; nombre: string }>;
+    branchTypes: Array<{ id: number; nombre: string }>;
+    potentialParents: Array<{ id: number; nombre: string; ciudad_id: number; direccion: string }>;
 }>();
 
 const localCities = ref([...props.cities]);
-const localParents = ref([...props.potentialParents]);
+
+const form = useForm({
+    nombre: props.atm.nombre,
+    ciudad_id: props.atm.ciudad_id.toString(),
+    padre_id: props.atm.padre_id ? props.atm.padre_id.toString() : 'null',
+    direccion: props.atm.direccion || '',
+});
 
 const onCitySuccess = (city: any) => {
     localCities.value.push(city);
-    form.city_id = city.id.toString();
+    form.ciudad_id = city.id.toString();
 };
 
-const onBranchSuccess = (branch: any) => {
-    localParents.value.push(branch);
-    form.parent_id = branch.id.toString();
-};
-
-const form = useForm({
-    name: props.atm.name,
-    city_id: props.atm.city_id.toString(),
-    parent_id: props.atm.parent_id ? props.atm.parent_id.toString() : 'none',
-    address: props.atm.address || '',
+const filteredParents = computed(() => {
+    if (!form.ciudad_id) return [];
+    return props.potentialParents.filter(p => p.ciudad_id.toString() === form.ciudad_id?.toString());
 });
 
-// Filter agencies based on selected city
-const filteredAgencies = computed(() => {
-    if (!form.city_id) return [];
-    return localParents.value.filter(agency => agency.city_id.toString() === form.city_id);
-});
-
-// Reset parent_id when city changes if not in the new filtered list
-watch(() => form.city_id, (newCityId, oldCityId) => {
-    // Only reset if the city actually changed from the initial value
-    if (oldCityId !== undefined) {
-        form.parent_id = 'none';
+watch(() => form.ciudad_id, (newVal, oldVal) => {
+    // Only reset if it's a real change (not initial load) and if the current parent isn't valid for the new city
+    if (oldVal !== undefined && newVal !== oldVal) {
+        form.padre_id = 'null';
     }
 });
+
+watch(() => form.padre_id, (newVal, oldVal) => {
+    // Only update if it's a real change by the user (not initial load if already set)
+    // Actually, even on initial load we might want to ensure consistency, 
+    // but the user might be editing an ATM with a custom address even if linked?
+    // User requested "link passes the address". So strict inheritance seems preferred.
+    
+    if (newVal && newVal !== 'null') {
+         const parent = props.potentialParents.find(p => p.id.toString() === newVal);
+        if (parent) {
+             form.direccion = parent.direccion || '';
+        }
+    } 
+    // If switched to null/standalone, we keep the current address but allow editing.
+});
+
+
 
 const submit = () => {
     form.put(route('atms.update', props.atm.id));
@@ -69,7 +85,7 @@ const breadcrumbs = [
     <AppLayout :breadcrumbs="breadcrumbs">
         <Head title="Editar ATM" />
 
-        <div class="max-w-xl mx-auto p-4 md:p-8">
+        <div class="max-w-4xl mx-auto p-4 md:p-8">
             <div class="mb-8">
                 <Button variant="ghost" as-child class="-ml-2 mb-4 text-muted-foreground hover:text-foreground">
                     <Link :href="route('atms.index')">
@@ -98,68 +114,67 @@ const breadcrumbs = [
                     
                     <CardContent class="p-6 space-y-6">
                         <div class="space-y-2">
-                            <Label for="name" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Nombre Identificador</Label>
+                            <Label for="nombre" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Nombre Identificador</Label>
                             <Input 
-                                id="name" 
-                                v-model="form.name" 
+                                id="nombre" 
+                                v-model="form.nombre" 
                                 required 
                                 class="h-11 bg-background/50 focus-visible:ring-emerald-500 shadow-sm"
                                 placeholder="Ej. ATM Central 01"
                             />
-                            <p v-if="form.errors.name" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.name }}</p>
+                            <p v-if="form.errors.nombre" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.nombre }}</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <Label for="city" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Ciudad</Label>
                                 <div class="flex gap-2">
-                                    <Select v-model="form.city_id">
+                                    <Select v-model="form.ciudad_id">
                                         <SelectTrigger id="city" class="h-11 bg-background/50 flex-1">
                                             <SelectValue placeholder="Seleccione ciudad" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem v-for="city in localCities" :key="city.id" :value="city.id.toString()">
-                                                {{ city.name }}
+                                                {{ city.nombre }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <CityQuickAdd @success="onCitySuccess" />
                                 </div>
-                                <p v-if="form.errors.city_id" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.city_id }}</p>
+                                <p v-if="form.errors.ciudad_id" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.ciudad_id }}</p>
                             </div>
 
                             <div class="space-y-2">
-                                <Label for="parent" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Agencia Base</Label>
+                                <Label for="padre" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Agencia Principal (Opcional)</Label>
                                 <div class="flex gap-2">
-                                    <Select v-model="form.parent_id">
-                                        <SelectTrigger id="parent" class="h-11 bg-background/50 flex-1">
-                                            <SelectValue placeholder="Sin agencia (Extra muro)" />
+                                    <Select v-model="form.padre_id">
+                                        <SelectTrigger id="padre" class="h-11 bg-background/50 flex-1">
+                                            <SelectValue placeholder="Standalone (Ninguna)" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="none">Sin agencia (Extra muro)</SelectItem>
-                                            <SelectItem v-for="parent in filteredAgencies" :key="parent.id" :value="parent.id.toString()">
-                                                {{ parent.name }}
+                                            <SelectItem value="null">Ninguna (Independiente)</SelectItem>
+                                            <SelectItem v-for="parent in filteredParents" :key="parent.id" :value="parent.id.toString()">
+                                                {{ parent.nombre }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <BranchQuickAdd 
-                                        :cities="localCities" 
-                                        :types="branchTypes" 
-                                        @success="onBranchSuccess"
-                                    />
+                                    <BranchQuickAdd :cities="localCities" />
                                 </div>
+                                <p v-if="form.errors.padre_id" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.padre_id }}</p>
                             </div>
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="address" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Ubicación / Dirección</Label>
+                            <Label for="direccion" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Ubicación / Dirección</Label>
                             <Input 
-                                id="address" 
-                                v-model="form.address" 
+                                id="direccion" 
+                                v-model="form.direccion"
+                                :readonly="form.padre_id !== 'null' && form.padre_id !== undefined"
+                                :class="{'opacity-75 cursor-not-allowed': form.padre_id !== 'null' && form.padre_id !== undefined}" 
                                 class="h-11 bg-background/50 focus-visible:ring-emerald-500 shadow-sm"
                                 placeholder="Ej. Centro Comercial Norte, Planta Baja"
                             />
-                            <p v-if="form.errors.address" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.address }}</p>
+                            <p v-if="form.errors.direccion" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.direccion }}</p>
                         </div>
                     </CardContent>
 

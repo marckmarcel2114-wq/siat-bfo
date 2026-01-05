@@ -1,0 +1,30 @@
+Administrable
+Almacenamiento
+Cantidad de Puertos
+Capacidad
+Capacidad de Disco
+Capacidad de Memoria
+Conectividad
+Conectividad Celular
+Disco Duro
+Dúplex Automático
+Entradas de Video
+Generación
+Memoria RAM
+PoE (Power over Ethernet)
+Procesador
+Resolución
+Sistema Operativo
+Tamaño de Pantalla
+Tarjeta Madre
+Tarjeta de Video
+Tipo Disco
+Tipo Memoria RAM
+Tipo de Disco
+Tipo de Impresión
+Tipo de Memoria
+Tipo de Montaje
+Topología
+Velocidad
+Versión Office
+Versión Sistema Operativo

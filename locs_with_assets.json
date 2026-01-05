@@ -1,0 +1,26 @@
+{
+    "610": {
+        "name": "Sucursal Oruro",
+        "assets_count": 28,
+        "type": 1,
+        "city": 3
+    },
+    "611": {
+        "name": "Agencia Av. del Ej\u00e9rcito",
+        "assets_count": 11,
+        "type": 2,
+        "city": 3
+    },
+    "612": {
+        "name": "Agencia Mercado Bol\u00edvar",
+        "assets_count": 13,
+        "type": 2,
+        "city": 3
+    },
+    "613": {
+        "name": "Oficina Externa Escara",
+        "assets_count": 2,
+        "type": 4,
+        "city": 3
+    }
+}

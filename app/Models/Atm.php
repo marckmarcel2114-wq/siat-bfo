@@ -9,26 +9,35 @@ class Atm extends Model
 {
     use HasFactory;
 
+    protected $table = 'ubicaciones';
+
     protected $fillable = [
-        'city_id',
-        'parent_id',
-        'name',
-        'address',
-        'phones',
+        'ciudad_id',
+        'tipo_sucursal_id',
+        'padre_id',
+        'nombre',
+        'direccion',
+        'telefonos',
+        'codigo_ubicacion'
     ];
 
-    public function city()
+    public function ciudad()
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(City::class, 'ciudad_id');
     }
 
-    public function parent()
+    public function tipo()
     {
-        return $this->belongsTo(Branch::class, 'parent_id');
+        return $this->belongsTo(TipoSucursal::class, 'tipo_sucursal_id');
+    }
+
+    public function padre()
+    {
+        return $this->belongsTo(Ubicacion::class, 'padre_id');
     }
 
     public function assets()
     {
-        return $this->hasMany(Asset::class);
+        return $this->hasMany(Activo::class, 'ubicacion_id');
     }
 }

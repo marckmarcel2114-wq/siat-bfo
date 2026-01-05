@@ -1,0 +1,9 @@
+[
+    "id",
+    "ciudad_id",
+    "tipo_sucursal_id",
+    "nombre",
+    "codigo_ubicacion",
+    "created_at",
+    "updated_at"
+]

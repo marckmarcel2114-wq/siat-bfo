@@ -15,7 +15,7 @@ const props = defineProps<{
     assetTypes: {
         data: Array<{
             id: number;
-            name: string;
+            nombre: string;
             assets_count?: number;
         }>;
         links: any[];
@@ -103,7 +103,7 @@ const breadcrumbs = [
                                             <div class="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 group-hover/row:scale-110 transition-transform shadow-sm border border-emerald-500/20">
                                                 <Monitor class="h-4 w-4" />
                                             </div>
-                                            <span class="font-bold text-foreground">{{ type.name }}</span>
+                                            <span class="font-bold text-foreground">{{ type.nombre }}</span>
                                         </div>
                                     </td>
                                     <td class="p-4 text-center">

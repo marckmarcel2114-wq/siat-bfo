@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'emailDomain' => \App\Models\Setting::where('key', 'email_domain')->value('value') ?? 'grupofortaleza.com.bo',
         ];
     }
 }

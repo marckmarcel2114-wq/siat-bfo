@@ -15,11 +15,11 @@ const props = defineProps<{
     branchTypes: {
         data: Array<{
             id: number;
-            name: string;
-            description: string;
+            nombre: string;
+            descripcion: string;
             color: string;
             sort_order: number;
-            branches_count: number;
+            ubicaciones_count: number;
         }>;
         links: any[];
     };
@@ -111,7 +111,7 @@ const breadcrumbs = [
                                             >
                                                 <Layers class="h-4 w-4" />
                                             </div>
-                                            <span class="font-bold text-foreground">{{ type.name }}</span>
+                                            <span class="font-bold text-foreground">{{ type.nombre }}</span>
                                         </div>
                                     </td>
                                     <td class="p-4 text-center">
@@ -120,11 +120,11 @@ const breadcrumbs = [
                                         </Badge>
                                     </td>
                                     <td class="p-4 text-muted-foreground italic">
-                                        {{ type.description || 'Sin descripción' }}
+                                        {{ type.descripcion || 'Sin descripción' }}
                                     </td>
                                     <td class="p-4 text-center">
                                         <Badge variant="secondary" class="font-mono px-3">
-                                            {{ type.branches_count }}
+                                            {{ type.ubicaciones_count }}
                                         </Badge>
                                     </td>
                                     <td class="p-4 text-right pr-6">
@@ -139,7 +139,7 @@ const breadcrumbs = [
                                                 size="icon" 
                                                 class="h-8 w-8 text-muted-foreground hover:text-destructive" 
                                                 @click="deleteType(type.id)"
-                                                :disabled="type.name === 'ATM'"
+                                                :disabled="type.nombre === 'ATM'"
                                             >
                                                 <Trash2 class="h-3.5 w-3.5" />
                                             </Button>

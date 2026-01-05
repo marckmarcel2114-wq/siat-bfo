@@ -1,0 +1,73 @@
+ATM Type ID: 3
+Total Ubicaciones: 52
+Type: Sucursal (ID: 1) - Count: 8
+Type: Agencia (ID: 2) - Count: 17
+Type: ATM (ID: 3) - Count: 22
+Type: Oficina Externa (ID: 4) - Count: 5
+Type: PAF (ID: 11) - Count: 0
+
+Locations in La Paz (ID: 1):
+- Sucursal La Paz (Type ID: 1, Type Name: Sucursal)
+- Agencia Arce (Type ID: 3, Type Name: ATM)
+- Agencia Tumusla (Type ID: 3, Type Name: ATM)
+- Agencia Villa Fátima (Type ID: 3, Type Name: ATM)
+- Agencia San Miguel (Type ID: 3, Type Name: ATM)
+- Agencia Achumani (Type ID: 3, Type Name: ATM)
+- Agencia Entre Ríos (Type ID: 3, Type Name: ATM)
+- Sucursal El Alto (Type ID: 1, Type Name: Sucursal)
+- Agencia 16 de Julio (Type ID: 2, Type Name: Agencia)
+- Agencia Río Seco (Type ID: 2, Type Name: Agencia)
+- Agencia Cruce Villa Adela (Type ID: 2, Type Name: Agencia)
+- Agencia Villa Dolores (Type ID: 2, Type Name: Agencia)
+- Aeropuerto El Alto (Type ID: 2, Type Name: Agencia)
+- Oficina Externa Puerto Carabuco (Type ID: 4, Type Name: Oficina Externa)
+- Oficina Externa Huatajata (Type ID: 4, Type Name: Oficina Externa)
+- ATM Edificio Señor de Mayo (Type ID: 3, Type Name: ATM)
+
+Locations in Cochabamba (ID: 4):
+- Sucursal Cochabamba (Type ID: 1, Type Name: Sucursal)
+- Agencia 14 de Septiembre (Type ID: 2, Type Name: Agencia)
+- Agencia América (Type ID: 3, Type Name: ATM)
+- Agencia La Cancha (Type ID: 3, Type Name: ATM)
+- Agencia Quillacollo (Type ID: 2, Type Name: Agencia)
+- Agencia Sacaba (Type ID: 2, Type Name: Agencia)
+- Agencia Norte (Type ID: 3, Type Name: ATM)
+- Oficina Externa Tacachi (Type ID: 4, Type Name: Oficina Externa)
+- Oficina Externa Bolivar (Type ID: 4, Type Name: Oficina Externa)
+- ATM Cala Cala (Type ID: 3, Type Name: ATM)
+- ATM Hotel Cochabamba (Type ID: 3, Type Name: ATM)
+- ATM El Prado Cochabamba II (Type ID: 3, Type Name: ATM)
+
+Locations in Santa Cruz (ID: 6):
+- Sucursal Santa Cruz (Type ID: 1, Type Name: Sucursal)
+- Agencia Vírgen de Cotoca (Type ID: 3, Type Name: ATM)
+- Agencia Monseñor Rivero (Type ID: 3, Type Name: ATM)
+- Agencia Mercado Abasto (Type ID: 3, Type Name: ATM)
+- Agencia Plan 3000 (Type ID: 3, Type Name: ATM)
+- Agencia La Ramada (Type ID: 3, Type Name: ATM)
+- Agencia Mutualista (Type ID: 3, Type Name: ATM)
+- Agencia Montero (Type ID: 2, Type Name: Agencia)
+- Agencia Villa Primero de Mayo (Type ID: 3, Type Name: ATM)
+- Aeropuerto Viru Viru (Type ID: 2, Type Name: Agencia)
+- Genex (Type ID: 2, Type Name: Agencia)
+- ATM Aeropuerto Viru Viru (Type ID: 3, Type Name: ATM)
+- ATM GENEX (Type ID: 3, Type Name: ATM)
+
+Locations in Oruro (ID: 3):
+- Sucursal Oruro (Type ID: 1, Type Name: Sucursal)
+- Agencia Av. del Ejército (Type ID: 2, Type Name: Agencia)
+- Agencia Mercado Bolívar (Type ID: 2, Type Name: Agencia)
+- Oficina Externa Escara (Type ID: 4, Type Name: Oficina Externa)
+
+Locations in Potosí (ID: 8):
+- Sucursal Potosí (Type ID: 1, Type Name: Sucursal)
+- Agencia Villazón (Type ID: 2, Type Name: Agencia)
+
+Locations in Sucre (ID: 5):
+- Sucursal Sucre (Type ID: 1, Type Name: Sucursal)
+- Agencia Mercado Campesino (Type ID: 2, Type Name: Agencia)
+
+Locations in Tarija (ID: 7):
+- Sucursal Tarija (Type ID: 1, Type Name: Sucursal)
+- Agencia Bermejo (Type ID: 2, Type Name: Agencia)
+- Agencia Mercado Campesino (Type ID: 2, Type Name: Agencia)

@@ -17,10 +17,12 @@ const props = defineProps<{
     atms: {
         data: Array<{
             id: number;
-            name: string;
-            address: string;
-            city: { name: string };
-            parent?: { name: string }; // Agency parent
+            nombre: string;
+            direccion: string;
+            telefonos: string;
+            ciudad: { nombre: string };
+            tipo: { nombre: string };
+            padre: { nombre: string; tipo?: { nombre: string } } | null;
         }>;
         links: any[];
         current_page: number;
@@ -49,7 +51,7 @@ const groupedAtms = computed(() => {
     let currentGroup: any = null;
 
     props.atms.data.forEach(atm => {
-        const cityName = atm.city?.name || 'Otras Ubicaciones';
+        const cityName = atm.ciudad?.nombre || 'Otras Ubicaciones';
         if (cityName !== currentCity) {
             currentCity = cityName;
             currentGroup = { name: cityName, items: [] };
@@ -70,6 +72,17 @@ const toggleGroup = (cityName: string) => {
 
 const isExpanded = (cityName: string) => expandedGroups.value.has(cityName);
 
+const getTypeColor = (type: string | undefined) => {
+    if (!type) return 'bg-slate-500/10 text-slate-700 border-slate-500/20';
+    const t = type.toLowerCase();
+    if (t.includes('central')) return 'bg-indigo-500/10 text-indigo-700 border-indigo-500/20';
+    if (t.includes('agencia')) return 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20';
+    if (t.includes('externa')) return 'bg-orange-500/10 text-orange-700 border-orange-500/20';
+    if (t.includes('paf')) return 'bg-rose-500/10 text-rose-700 border-rose-500/20';
+    if (t.includes('sucursal')) return 'bg-sky-500/10 text-sky-700 border-sky-500/20';
+    return 'bg-slate-500/10 text-slate-700 border-slate-500/20';
+};
+
 const deleteAtm = (id: number) => {
     if (confirm('¿Estás seguro de eliminar este ATM?')) {
         router.delete(route('atms.destroy', id));
@@ -86,10 +99,10 @@ const exportCSV = () => {
     const headers = ['ID', 'Nombre', 'Dirección', 'Ciudad', 'Agencia Base'];
     const rows = props.atms.data.map(a => [
         a.id,
-        a.name,
-        a.address || '',
-        a.city?.name || '',
-        a.parent?.name || ''
+        a.nombre,
+        a.direccion || '',
+        a.ciudad?.nombre || '',
+        a.padre?.nombre || 'Independiente'
     ]);
     
     let csvContent = "data:text/csv;charset=utf-8," 
@@ -147,11 +160,11 @@ const exportCSV = () => {
 
             <Card class="border-border/50 shadow-sm">
                 <CardHeader class="pb-3 px-6">
-                    <div class="flex items-center justify-between">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <CardTitle class="text-lg">Listado de ATMs</CardTitle>
-                        <div class="relative w-72 max-sm hidden md:block">
+                        <div class="relative w-full md:w-72">
                             <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input v-model="search" placeholder="Buscar por nombre, código o ciudad..." class="pl-9 h-9" />
+                            <Input v-model="search" placeholder="Buscar por nombre, código o ciudad..." class="pl-9 h-9 w-full" />
                         </div>
                     </div>
                 </CardHeader>
@@ -162,12 +175,13 @@ const exportCSV = () => {
                                 <tr>
                                     <th class="h-10 px-4 align-middle font-semibold">Nombre / ID</th>
                                     <th class="h-10 px-4 align-middle font-semibold">Agencia Base (Vínculo)</th>
+
                                     <th class="h-10 px-4 align-middle text-right font-semibold pr-6">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-if="atms.data.length === 0">
-                                    <td colspan="4" class="p-12 text-center text-muted-foreground">
+                                    <td colspan="3" class="p-12 text-center text-muted-foreground">
                                         <div class="flex flex-col items-center justify-center gap-2">
                                             <Monitor class="h-8 w-8 opacity-20" />
                                             <p>No se encontraron ATMs registrados.</p>
@@ -180,7 +194,7 @@ const exportCSV = () => {
                                         class="bg-muted/10 border-b border-border/50 cursor-pointer hover:bg-muted/20 transition-colors"
                                         @click="toggleGroup(group.name)"
                                     >
-                                        <td colspan="4" class="px-4 py-2.5 font-bold text-[11px] uppercase tracking-wider text-emerald-700/80">
+                                        <td colspan="3" class="px-4 py-2.5 font-bold text-[11px] uppercase tracking-wider text-emerald-700/80">
                                             <div class="flex items-center justify-between w-full">
                                                 <div class="flex items-center gap-2">
                                                     <component :is="isExpanded(group.name) ? ChevronDown : ChevronRight" class="h-4 w-4 text-muted-foreground" />
@@ -203,31 +217,34 @@ const exportCSV = () => {
                                                         <Monitor class="h-4 w-4" />
                                                     </div>
                                                     <div class="flex flex-col text-left">
-                                                        <span class="font-medium text-foreground">{{ atm.name }}</span>
-                                                        <span class="text-[10px] text-muted-foreground truncate max-w-[200px]" :title="atm.address">{{ atm.address || 'Sin dirección' }}</span>
+                                                        <span class="font-medium text-foreground">{{ atm.nombre }}</span>
+                                                        <span class="text-[10px] text-muted-foreground truncate max-w-[200px]" :title="atm.direccion">{{ atm.direccion || 'Sin dirección' }}</span>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="p-4">
-                                                <div v-if="atm.parent" class="flex items-center gap-1.5 ">
-                                                    <div class="h-5 w-5 rounded bg-blue-500/10 flex items-center justify-center text-blue-600">
+                                                <div v-if="atm.padre" class="flex items-center gap-1.5 opacity-90">
+                                                    <div class="h-5 w-5 rounded bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
                                                         <Building class="h-3 w-3" />
                                                     </div>
-                                                    <div class="flex flex-col">
-                                                        <span class="text-xs font-semibold text-foreground">{{ atm.parent.name }}</span>
-                                                        <span class="text-[9px] text-muted-foreground uppercase font-medium">Vinculado</span>
+                                                    <div class="flex flex-col text-left">
+                                                        <span class="text-[10px] text-foreground font-medium">{{ atm.padre.nombre }}</span>
+                                                        <Badge variant="outline" :class="getTypeColor(atm.padre.tipo?.nombre)" class="w-fit text-[9px] px-1.5 py-0 rounded h-4 mt-0.5">
+                                                            {{ atm.padre.tipo?.nombre?.toUpperCase() || 'AGENCIA' }}
+                                                        </Badge>
                                                     </div>
                                                 </div>
                                                 <div v-else class="flex items-center gap-1.5 opacity-50">
-                                                    <div class="h-5 w-5 rounded bg-slate-200 flex items-center justify-center text-slate-500">
+                                                    <div class="h-5 w-5 rounded bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500">
                                                         <Monitor class="h-3 w-3" />
                                                     </div>
-                                                    <div class="flex flex-col">
-                                                        <span class="text-[10px] text-slate-500 font-medium italic">Sin vincular</span>
-                                                        <span class="text-[9px] text-slate-400 uppercase font-medium truncate max-w-[80px]">Extra muro</span>
+                                                    <div class="flex flex-col text-left">
+                                                        <span class="text-[10px] text-slate-500 font-medium italic">ATM Independiente</span>
+                                                        <span class="text-[9px] text-slate-400 uppercase font-medium">Ubicación Única</span>
                                                     </div>
                                                 </div>
                                             </td>
+
                                             <td class="p-4 text-right pr-6">
                                                 <div class="flex justify-end gap-1">
                                                     <Button variant="ghost" size="icon" class="h-8 w-8" as-child>

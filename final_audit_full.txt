@@ -1,0 +1,8 @@
+Total ATMs: 39
+- La Paz: 8 ATMs, 14 Branches
+- Oruro: 4 ATMs, 4 Branches
+- Cochabamba: 9 ATMs, 9 Branches
+- Sucre: 2 ATMs, 2 Branches
+- Santa Cruz: 11 ATMs, 9 Branches
+- Tarija: 3 ATMs, 3 Branches
+- Potosí: 2 ATMs, 2 Branches

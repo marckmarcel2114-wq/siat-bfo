@@ -1,0 +1,7 @@
+Searching for ATM/Cajero names...
+655 | ATM | ATM Edificio Señor de Mayo
+656 | ATM | ATM Cala Cala
+657 | ATM | ATM Hotel Cochabamba
+658 | ATM | ATM El Prado Cochabamba II
+659 | ATM | ATM Aeropuerto Viru Viru
+660 | ATM | ATM GENEX

@@ -10,8 +10,8 @@ import { ArrowLeft, Save, Settings2 } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 
 const form = useForm({
-    name: '',
-    description: '',
+    nombre: '',
+    descripcion: '',
     color: 'blue',
     sort_order: 0,
 });
@@ -72,26 +72,26 @@ const breadcrumbs = [
                     
                     <CardContent class="p-6 space-y-6">
                         <div class="space-y-2">
-                            <Label for="name" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Nombre del Tipo</Label>
+                            <Label for="nombre" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Nombre del Tipo</Label>
                             <Input 
-                                id="name" 
-                                v-model="form.name" 
+                                id="nombre" 
+                                v-model="form.nombre" 
                                 required 
                                 class="h-11 bg-background/50 focus-visible:ring-primary shadow-sm"
                                 placeholder="Ej. Agencia Rural, Punto Externo..."
                             />
-                            <p v-if="form.errors.name" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.name }}</p>
+                            <p v-if="form.errors.nombre" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.nombre }}</p>
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="description" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Descripción (Opcional)</Label>
+                            <Label for="descripcion" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Descripción (Opcional)</Label>
                             <Textarea 
-                                id="description" 
-                                v-model="form.description" 
+                                id="descripcion" 
+                                v-model="form.descripcion" 
                                 class="min-h-[100px] bg-background/50 focus-visible:ring-primary shadow-sm resize-none"
                                 placeholder="Breve descripción del propósito de este tipo..."
                             />
-                            <p v-if="form.errors.description" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.description }}</p>
+                            <p v-if="form.errors.descripcion" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.descripcion }}</p>
                         </div>
 
                         <div class="space-y-2">

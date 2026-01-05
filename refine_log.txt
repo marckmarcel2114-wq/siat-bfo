@@ -1,0 +1,17 @@
+Refining categorization v2...
+Updating [Agencia Arce]: Type 2 -> 3
+Updating [Agencia Tumusla]: Type 2 -> 3
+Updating [Agencia Villa Fátima]: Type 2 -> 3
+Updating [Agencia San Miguel]: Type 2 -> 3
+Updating [Agencia Achumani]: Type 2 -> 3
+Updating [Agencia Entre Ríos]: Type 2 -> 3
+Updating [Agencia América]: Type 2 -> 3
+Updating [Agencia La Cancha]: Type 2 -> 3
+Updating [Agencia Norte]: Type 2 -> 3
+Updating [Agencia Vírgen de Cotoca]: Type 2 -> 3
+Updating [Agencia Monseñor Rivero]: Type 2 -> 3
+Updating [Agencia Mercado Abasto]: Type 2 -> 3
+Updating [Agencia Plan 3000]: Type 2 -> 3
+Updating [Agencia La Ramada]: Type 2 -> 3
+Updating [Agencia Mutualista]: Type 2 -> 3
+Updating [Agencia Villa Primero de Mayo]: Type 2 -> 3

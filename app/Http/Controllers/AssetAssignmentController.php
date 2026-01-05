@@ -2,141 +2,183 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AssetAssignment;
-use App\Models\Asset;
+use App\Models\Asignacion;
+use App\Models\Activo;
 use App\Models\User;
+use App\Models\EstadoActivo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class AssetAssignmentController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        // Maybe a list of history?
-        // Usually accessed via Asset details, but a global list might be useful.
-        return Inertia::render('AssetAssignments/Index', [
-            'assignments' => AssetAssignment::with(['asset.type', 'user', 'assigner'])->latest()->paginate(20),
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
+     * Show form to assign an asset.
      */
     public function create(Request $request)
     {
         $assetId = $request->query('asset_id');
         $asset = null;
         if ($assetId) {
-            $asset = Asset::find($assetId);
+            $asset = Activo::with(['tipoActivo', 'modelo.marca', 'ubicacion.ciudad'])->findOrFail($assetId);
         }
 
+        // Fetch Checklist Definitions (Security & Software)
+        $checklistDefinitions = [];
+        // Checklist definitions related to 'software' and 'security' categories were removed during database standardization.
+        // Returning empty array to prevent crash. If checklist is needed, it should be reimplemented with new schema.
+        $checklistDefinitions = [];
+
         return Inertia::render('AssetAssignments/Create', [
-            'preselectedAsset' => $asset,
-            'users' => User::orderBy('name')->get(), // Potential bottleneck if thousands of users, but okay for start
-            // Assets that are 'free'
-            'availableAssets' => Asset::where('status', 'free')->with('type')->get(),
+            'asset' => $asset,
+            'users' => User::with('ubicacion')->orderBy('name')->get(),
+            'checklistDefinitions' => $checklistDefinitions
         ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Process the assignment.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'asset_id' => 'required|exists:assets,id',
-            'user_id' => 'required|exists:users,id',
-            'assigned_at' => 'required|date',
-            'act_document' => 'required|file|mimes:pdf|max:10240', // 10MB max
-            'details' => 'nullable|array',
-            'notes' => 'nullable|string',
+            'activo_id' => 'required|exists:activos,id',
+            'usuario_id' => 'required|exists:users,id',
+            'observaciones' => 'nullable|string',
+            'ubicacion_destino_id' => 'nullable|exists:ubicaciones,id',
+            'details' => 'nullable|array' // Checklist answers
         ]);
 
-        $asset = Asset::findOrFail($validated['asset_id']);
+        try {
+            DB::transaction(function () use ($validated) {
+                $activo = Activo::with(['tipoActivo', 'modelo.marca', 'atributos'])->findOrFail($validated['activo_id']);
+                $usuario = User::with(['ubicacion.ciudad'])->findOrFail($validated['usuario_id']);
+                
+                // 1. Close any existing current assignment (just in case)
+                Asignacion::where('activo_id', $activo->id)
+                    ->where('es_actual', true)
+                    ->update(['es_actual' => false, 'fecha_devolucion' => now(), 'observaciones' => 'Cierre automático por nueva asignación (Warning)']);
 
-        if ($asset->status !== 'free') {
-            return back()->withErrors(['asset_id' => 'Este activo no está disponible para asignación.']);
+                // 2. Create Assignment
+                $asignacion = Asignacion::create([
+                    'activo_id' => $activo->id,
+                    'usuario_id' => $usuario->id,
+                    'fecha_asignacion' => now(),
+                    'es_actual' => true,
+                    'details' => $request->input('details'), // Save checklist answers
+                    'observaciones' => $validated['observaciones']
+                ]);
+
+                // 3. Update Asset Status and Location
+                $estadoAsignado = EstadoActivo::where('nombre', 'Asignado')->first(); // Ensure seed matches
+                $activo->estado_activo_id = $estadoAsignado ? $estadoAsignado->id : 2; // Fallback ID
+                if (!empty($validated['ubicacion_destino_id'])) {
+                    $activo->ubicacion_id = $validated['ubicacion_destino_id'];
+                } else {
+                     // Default to user's location if available, else keep asset's
+                     if ($usuario->ubicacion_id) $activo->ubicacion_id = $usuario->ubicacion_id;
+                }
+                $activo->save();
+
+                // 4. Generate PDF
+                $pdf = Pdf::loadView('pdf.acta_entrega', [
+                    'asignacion' => $asignacion,
+                    'activo' => $activo,
+                    'usuario' => $usuario,
+                    'fecha' => now()->format('d/m/Y'),
+                    'observaciones' => $validated['observaciones'] ?? ''
+                ]);
+
+                $filename = 'acta_entrega_' . $asignacion->id . '_' . Str::random(8) . '.pdf';
+                $path = 'actas/entrega/' . $filename;
+                
+                Storage::disk('public')->put($path, $pdf->output());
+
+                // 5. Save Path
+                $asignacion->acta_entrega_path = $path;
+                $asignacion->save();
+            });
+
+            return redirect()->route('assets.index')->with('success', 'Activo asignado y Acta generada.');
+            
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al procesar asignación: ' . $e->getMessage()]);
         }
+    }
+    
+    /**
+     * Show form to return an asset.
+     */
+    public function returnForm(Activo $asset)
+    {
+         $assignment = Asignacion::where('activo_id', $asset->id)->where('es_actual', true)->with('usuario')->firstOrFail();
+         
+         return Inertia::render('AssetAssignments/Return', [
+             'asset' => $asset->load(['tipoActivo', 'modelo.marca']),
+             'assignment' => $assignment
+         ]);
+    }
 
-        // Handle File Upload
-        $path = null;
-        if ($request->hasFile('act_document')) {
-            $path = $request->file('act_document')->store('assignments/acts', 'public');
-        }
-
-        $assignment = AssetAssignment::create([
-            'asset_id' => $validated['asset_id'],
-            'user_id' => $validated['user_id'],
-            'assigned_by' => Auth::id(),
-            'assigned_at' => $validated['assigned_at'],
-            'act_document_path' => $path,
-            'details' => $validated['details'],
-            'notes' => $validated['notes'],
+    /**
+     * Process the return.
+     */
+    public function processReturn(Request $request, Asignacion $asignacion)
+    {
+        $validated = $request->validate([
+             'observaciones' => 'nullable|string',
+             'estado_final_id' => 'required|exists:estados_activo,id' // Free, Maintenance, etc.
         ]);
-
-        // Update Asset Status
-        $asset->update(['status' => 'assigned']);
-
-        return redirect()->route('assets.show', $asset)->with('success', 'Activo asignado correctamenete.');
+        
+        DB::transaction(function () use ($validated, $asignacion) {
+             $asignacion->load(['activo', 'usuario']);
+             
+             // 1. Update Assignment
+             $asignacion->update([
+                 'es_actual' => false,
+                 'fecha_devolucion' => now(),
+                 // 'observaciones_devolucion' => ... 
+             ]);
+             
+             // 2. Update Asset
+             $asignacion->activo->update([
+                 'estado_activo_id' => $validated['estado_final_id']
+             ]);
+             
+             // 3. Generate PDF Return
+             $pdf = Pdf::loadView('pdf.acta_devolucion', [
+                'asignacion' => $asignacion,
+                'activo' => $asignacion->activo,
+                'usuario' => $asignacion->usuario,
+                'fecha' => now()->format('d/m/Y'),
+                'observaciones' => $validated['observaciones'] ?? ''
+             ]);
+             
+            $filename = 'acta_devolucion_' . $asignacion->id . '_' . Str::random(8) . '.pdf';
+            $path = 'actas/devolucion/' . $filename;
+            
+            Storage::disk('public')->put($path, $pdf->output());
+            
+            $asignacion->acta_devolucion_path = $path;
+            $asignacion->save();
+        });
+        
+        return redirect()->route('assets.show', $asignacion->activo_id)->with('success', 'Activo devuelto y Acta generada.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(AssetAssignment $assetAssignment)
+    public function downloadActa(Request $request, $id, $type)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(AssetAssignment $assetAssignment)
-    {
-        // Typically we update return info here?
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, AssetAssignment $assetAssignment)
-    {
-        // Logic for "Return" asset
-        if ($request->has('return_action')) {
-            $validated = $request->validate([
-                'returned_at' => 'required|date',
-                'return_document' => 'nullable|file|mimes:pdf|max:10240',
-                'return_notes' => 'nullable|string',
-            ]);
-
-            $path = $assetAssignment->return_document_path;
-            if ($request->hasFile('return_document')) {
-                $path = $request->file('return_document')->store('assignments/returns', 'public');
-            }
-
-            $assetAssignment->update([
-                'returned_at' => $validated['returned_at'],
-                'return_document_path' => $path,
-                'notes' => $assetAssignment->notes . "\n[Devolución]: " . $validated['return_notes'],
-            ]);
-
-            // Free the asset
-            $assetAssignment->asset->update(['status' => 'free']);
-
-            return back()->with('success', 'Activo devuelto correctamente.');
+        $asignacion = Asignacion::findOrFail($id);
+        
+        $path = $type === 'entrega' ? $asignacion->acta_entrega_path : $asignacion->acta_devolucion_path;
+        
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            abort(404, 'El documento no existe.');
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(AssetAssignment $assetAssignment)
-    {
-        //
+        
+        return Storage::disk('public')->download($path);
     }
 }

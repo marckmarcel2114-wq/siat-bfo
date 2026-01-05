@@ -1,0 +1,29 @@
+--- asset_types (12 rows) ---
+ID: 1 | Name: Desktop
+ID: 2 | Name: Laptop
+ID: 3 | Name: Server
+ID: 4 | Name: Router
+ID: 5 | Name: Switch
+ID: 6 | Name: Firewall
+ID: 7 | Name: Printer
+ID: 8 | Name: UPS
+ID: 9 | Name: Monitor
+ID: 10 | Name: Key/Mouse
+ID: 11 | Name: Access Point
+ID: 12 | Name: Otro
+
+--- tipos_activo (9 rows) ---
+ID: 1 | Name: Laptop
+ID: 2 | Name: Desktop
+ID: 3 | Name: Servidor
+ID: 4 | Name: Impresora
+ID: 5 | Name: Monitor
+ID: 6 | Name: Switch
+ID: 7 | Name: Router
+ID: 8 | Name: UPS
+ID: 9 | Name: Tablet
+
+--- Activos Usage ---
+Using FK column: tipo_activo_id
+ID 1 used by 11 assets.
+ID 2 used by 43 assets.

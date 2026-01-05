@@ -9,7 +9,7 @@ import { ArrowLeft, Save, Settings2 } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 
 const form = useForm({
-    name: '',
+    nombre: '',
 });
 
 const submit = () => {
@@ -57,15 +57,15 @@ const breadcrumbs = [
                     
                     <CardContent class="p-6 space-y-6">
                         <div class="space-y-2">
-                            <Label for="name" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Nombre del Tipo</Label>
+                            <Label for="nombre" class="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">Nombre del Tipo</Label>
                             <Input 
-                                id="name" 
-                                v-model="form.name" 
+                                id="nombre" 
+                                v-model="form.nombre" 
                                 required 
                                 class="h-11 bg-background/50 focus-visible:ring-primary shadow-sm"
                                 placeholder="Ej. Laptop, Router, Switch..."
                             />
-                            <p v-if="form.errors.name" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.name }}</p>
+                            <p v-if="form.errors.nombre" class="text-xs font-semibold text-destructive mt-1">{{ form.errors.nombre }}</p>
                         </div>
                     </CardContent>
 

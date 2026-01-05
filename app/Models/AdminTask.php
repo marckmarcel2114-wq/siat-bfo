@@ -10,6 +10,8 @@ class AdminTask extends Model
 {
     use HasFactory;
 
+    protected $table = 'tareas_admin';
+
     protected $fillable = [
         'title',
         'description',

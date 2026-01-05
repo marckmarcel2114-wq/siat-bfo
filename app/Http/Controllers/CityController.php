@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\City;
-use App\Models\BranchType;
+use App\Models\TipoSucursal;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
@@ -15,26 +15,26 @@ class CityController extends Controller
      */
     public function index(Request $request)
     {
-        $branchTypes = BranchType::orderBy('sort_order', 'asc')
+        $branchTypes = TipoSucursal::orderBy('sort_order', 'asc')
             ->get();
         $query = City::withCount(['atms']);
 
         // Add count for each branch type dynamically
         foreach ($branchTypes as $type) {
             $query->withCount([
-                'branches as type_' . $type->id . '_count' => function ($q) use ($type) {
-                    $q->where('branch_type_id', $type->id);
+                'ubicaciones as type_' . $type->id . '_count' => function ($q) use ($type) {
+                    $q->where('tipo_sucursal_id', $type->id);
                 }
             ]);
         }
 
         if ($request->has('search')) {
             $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
+            $query->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('codigo', 'like', "%{$search}%");
         }
 
-        $cities = $query->orderBy('name')
+        $cities = $query->orderBy('nombre')
             ->paginate(10)
             ->withQueryString();
 
@@ -59,8 +59,8 @@ class CityController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:cities',
-            'code' => 'required|string|max:10|unique:cities',
+            'nombre' => 'required|string|max:255|unique:ciudades,nombre',
+            'codigo' => 'required|string|max:10|unique:ciudades,codigo',
         ]);
 
         $city = City::create($validated);
@@ -88,8 +88,8 @@ class CityController extends Controller
     public function update(Request $request, City $city)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('cities')->ignore($city->id)],
-            'code' => ['required', 'string', 'max:10', Rule::unique('cities')->ignore($city->id)],
+            'nombre' => ['required', 'string', 'max:255', Rule::unique('ciudades')->ignore($city->id)],
+            'codigo' => ['required', 'string', 'max:10', Rule::unique('ciudades')->ignore($city->id)],
         ]);
 
         $city->update($validated);

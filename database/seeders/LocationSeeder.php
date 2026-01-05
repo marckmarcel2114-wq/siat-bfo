@@ -44,12 +44,16 @@ class LocationSeeder extends Seeder
                 $currentCity = City::firstOrCreate(['name' => $cityName], ['code' => strtoupper(substr($cityName, 0, 3))]);
                 
                 // Create the Sucursal branch itself
-                $currentBranch = Branch::create([
-                    'city_id' => $currentCity->id,
-                    'branch_type_id' => $types['Sucursal'] ?? 1, // Default to 1 if not found
-                    'name' => $line,
-                    'address' => '', // Will be filled by next lines
-                ]);
+                $currentBranch = Branch::firstOrCreate(
+                    [
+                        'name' => $line, 
+                        'city_id' => $currentCity->id
+                    ],
+                    [
+                        'branch_type_id' => $types['Sucursal'] ?? 1,
+                        'address' => '',
+                    ]
+                );
                 continue;
             }
 
@@ -61,24 +65,32 @@ class LocationSeeder extends Seeder
                    continue; 
                 }
                 
-                $currentBranch = Branch::create([
-                    'city_id' => $currentCity->id,
-                    'branch_type_id' => $types['Agencia'] ?? 2,
-                    'name' => $line,
-                    'address' => '',
-                ]);
+                $currentBranch = Branch::firstOrCreate(
+                    [
+                        'name' => $line, 
+                        'city_id' => $currentCity->id
+                    ],
+                    [
+                        'branch_type_id' => $types['Agencia'] ?? 2,
+                        'address' => '',
+                    ]
+                );
                 continue;
             }
 
             // Detect Oficina Externa
             if (str_starts_with($line, 'Oficina Externa ')) {
                 if (!$currentCity) continue;
-                 $currentBranch = Branch::create([
-                    'city_id' => $currentCity->id,
-                    'branch_type_id' => $types['Oficina Externa'] ?? 3,
-                    'name' => $line,
-                    'address' => '',
-                ]);
+                 $currentBranch = Branch::firstOrCreate(
+                    [
+                        'name' => $line, 
+                        'city_id' => $currentCity->id
+                    ],
+                    [
+                        'branch_type_id' => $types['Oficina Externa'] ?? 3,
+                        'address' => '',
+                    ]
+                );
                 continue;
             }
 
@@ -135,12 +147,16 @@ class LocationSeeder extends Seeder
                      // Check if previous line was ATM? Difficult with loop.
                      // But we set currentBranch = null on 'ATM'.
                      // Let's create a generic ATM branch for this line
-                     $currentBranch = Branch::create([
-                        'city_id' => $currentCity->id,
-                        'branch_type_id' => $types['ATM'] ?? 3,
-                        'name' => 'ATM ' . $line,
-                        'address' => 'Verificar dirección',
-                    ]);
+                      $currentBranch = Branch::firstOrCreate(
+                        [
+                            'name' => 'ATM ' . $line, 
+                            'city_id' => $currentCity->id
+                        ],
+                        [
+                            'branch_type_id' => $types['ATM'] ?? 3,
+                           'address' => 'Verificar dirección',
+                        ]
+                    );
                 }
             }
         }

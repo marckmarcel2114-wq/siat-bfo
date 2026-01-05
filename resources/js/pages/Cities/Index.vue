@@ -15,8 +15,9 @@ const props = defineProps<{
     cities: {
         data: Array<{
             id: number;
-            name: string;
-            code: string;
+            id: number;
+            nombre: string;
+            codigo: string;
             atms_count: number;
             [key: string]: any; // For dynamic type_X_count
         }>;
@@ -24,7 +25,7 @@ const props = defineProps<{
     };
     branchTypes: Array<{
         id: number;
-        name: string;
+        nombre: string;
         color: string;
     }>;
     filters: {
@@ -122,8 +123,8 @@ const breadcrumbs = [
                                                 <MapPin class="h-4 w-4" />
                                             </div>
                                             <div class="flex flex-col">
-                                                <span class="font-bold text-foreground">{{ city.name }}</span>
-                                                <span class="text-[10px] font-mono text-muted-foreground uppercase opacity-70">{{ city.code }}</span>
+                                                <span class="font-bold text-foreground">{{ city.nombre }}</span>
+                                                <span class="text-[10px] font-mono text-muted-foreground uppercase opacity-70">{{ city.codigo }}</span>
                                             </div>
                                         </div>
                                     </td>
@@ -138,23 +139,12 @@ const breadcrumbs = [
                                                         class="flex items-center gap-2 px-2 py-0.5 border shadow-none h-6 w-fit"
                                                     >
                                                         <span class="text-[11px] font-black border-r border-current pr-2 leading-tight">{{ city['type_' + type.id + '_count'] }}</span>
-                                                        <span class="text-[10px] uppercase font-bold tracking-wider leading-tight">{{ type.name }}</span>
+                                                        <span class="text-[10px] uppercase font-bold tracking-wider leading-tight">{{ type.nombre }}</span>
                                                     </Badge>
                                                 </div>
                                             </template>
                                             
-                                            <div v-if="city.atms_count > 0" class="flex items-center">
-                                                <Badge 
-                                                    variant="outline"
-                                                    :class="`bg-${branchTypes.find(t => t.name === 'ATM')?.color || 'emerald'}-500/10 text-${branchTypes.find(t => t.name === 'ATM')?.color || 'emerald'}-600 border-${branchTypes.find(t => t.name === 'ATM')?.color || 'emerald'}-500/20 dark:text-${branchTypes.find(t => t.name === 'ATM')?.color || 'emerald'}-400`"
-                                                    class="flex items-center gap-2 px-2 py-0.5 border shadow-none h-6 w-fit"
-                                                >
-                                                    <span class="text-[11px] font-black border-r border-current pr-2 leading-tight">{{ city.atms_count }}</span>
-                                                    <span class="text-[10px] uppercase font-bold tracking-wider leading-tight">ATM</span>
-                                                </Badge>
-                                            </div>
-
-                                            <span v-if="city.atms_count === 0 && !branchTypes.some(t => city['type_' + t.id + '_count'] > 0)" class="text-muted-foreground/30 italic text-xs">
+                                            <span v-if="!branchTypes.some(t => city['type_' + t.id + '_count'] > 0)" class="text-muted-foreground/30 italic text-xs">
                                                 Sin puntos registrados
                                             </span>
                                         </div>

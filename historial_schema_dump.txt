@@ -1,0 +1,16 @@
+CREATE TABLE `historial_cambios` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `activo_id` bigint unsigned NOT NULL,
+  `campo_modificado` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `valor_anterior` text COLLATE utf8mb4_unicode_ci,
+  `valor_nuevo` text COLLATE utf8mb4_unicode_ci,
+  `fecha` datetime NOT NULL,
+  `usuario_responsable_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `historial_cambios_activo_id_foreign` (`activo_id`),
+  KEY `historial_cambios_usuario_responsable_id_foreign` (`usuario_responsable_id`),
+  CONSTRAINT `historial_cambios_activo_id_foreign` FOREIGN KEY (`activo_id`) REFERENCES `activos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `historial_cambios_usuario_responsable_id_foreign` FOREIGN KEY (`usuario_responsable_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

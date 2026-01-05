@@ -1,0 +1,21 @@
+Detailed Location List for Target Cities:
+------------------------------------------
+
+City: Oruro (ID: 3)
+   - ID: 610 | Type: Sucursal | Name: Sucursal Oruro | Code: 
+   - ID: 611 | Type: Agencia | Name: Agencia Av. del Ejército | Code: 
+   - ID: 612 | Type: Agencia | Name: Agencia Mercado Bolívar | Code: 
+   - ID: 613 | Type: Oficina Externa | Name: Oficina Externa Escara | Code: 
+
+City: Sucre (ID: 5)
+   - ID: 638 | Type: Sucursal | Name: Sucursal Sucre | Code: 
+   - ID: 639 | Type: Agencia | Name: Agencia Mercado Campesino | Code: 
+
+City: Tarija (ID: 7)
+   - ID: 651 | Type: Sucursal | Name: Sucursal Tarija | Code: 
+   - ID: 652 | Type: Agencia | Name: Agencia Bermejo | Code: 
+   - ID: 661 | Type: Agencia | Name: Agencia Mercado Campesino | Code: 
+
+City: Potosí (ID: 8)
+   - ID: 653 | Type: Sucursal | Name: Sucursal Potosí | Code: 
+   - ID: 654 | Type: Agencia | Name: Agencia Villazón | Code: 

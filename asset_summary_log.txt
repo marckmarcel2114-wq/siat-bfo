@@ -1,0 +1,55 @@
+Location Summary:
+ID: 610 | Type: Sucursal | Name: Sucursal Oruro | Assets: 28
+ID: 611 | Type: Agencia | Name: Agencia Av. del Ejército | Assets: 11
+ID: 612 | Type: Agencia | Name: Agencia Mercado Bolívar | Assets: 13
+ID: 613 | Type: Oficina Externa | Name: Oficina Externa Escara | Assets: 2
+ID: 614 | Type: Sucursal | Name: Sucursal La Paz | Assets: 0
+ID: 615 | Type: Agencia | Name: Agencia Arce | Assets: 0
+ID: 616 | Type: Agencia | Name: Agencia Tumusla | Assets: 0
+ID: 617 | Type: Agencia | Name: Agencia Villa Fátima | Assets: 0
+ID: 618 | Type: Agencia | Name: Agencia San Miguel | Assets: 0
+ID: 619 | Type: Agencia | Name: Agencia Achumani | Assets: 0
+ID: 620 | Type: Agencia | Name: Agencia Entre Ríos | Assets: 0
+ID: 621 | Type: Sucursal | Name: Sucursal El Alto | Assets: 0
+ID: 622 | Type: Agencia | Name: Agencia 16 de Julio | Assets: 0
+ID: 623 | Type: Agencia | Name: Agencia Río Seco | Assets: 0
+ID: 624 | Type: Agencia | Name: Agencia Cruce Villa Adela | Assets: 0
+ID: 625 | Type: Agencia | Name: Agencia Villa Dolores | Assets: 0
+ID: 626 | Type: Agencia | Name: Aeropuerto El Alto | Assets: 0
+ID: 627 | Type: Oficina Externa | Name: Oficina Externa Puerto Carabuco | Assets: 0
+ID: 628 | Type: Oficina Externa | Name: Oficina Externa Huatajata | Assets: 0
+ID: 629 | Type: Sucursal | Name: Sucursal Cochabamba | Assets: 0
+ID: 630 | Type: Agencia | Name: Agencia 14 de Septiembre | Assets: 0
+ID: 631 | Type: Agencia | Name: Agencia América | Assets: 0
+ID: 632 | Type: Agencia | Name: Agencia La Cancha | Assets: 0
+ID: 633 | Type: Agencia | Name: Agencia Quillacollo | Assets: 0
+ID: 634 | Type: Agencia | Name: Agencia Sacaba | Assets: 0
+ID: 635 | Type: Agencia | Name: Agencia Norte | Assets: 0
+ID: 636 | Type: Oficina Externa | Name: Oficina Externa Tacachi | Assets: 0
+ID: 637 | Type: Oficina Externa | Name: Oficina Externa Bolivar | Assets: 0
+ID: 638 | Type: Sucursal | Name: Sucursal Sucre | Assets: 0
+ID: 639 | Type: Agencia | Name: Agencia Mercado Campesino | Assets: 0
+ID: 640 | Type: Sucursal | Name: Sucursal Santa Cruz | Assets: 0
+ID: 641 | Type: Agencia | Name: Agencia Vírgen de Cotoca | Assets: 0
+ID: 642 | Type: Agencia | Name: Agencia Monseñor Rivero | Assets: 0
+ID: 643 | Type: Agencia | Name: Agencia Mercado Abasto | Assets: 0
+ID: 644 | Type: Agencia | Name: Agencia Plan 3000 | Assets: 0
+ID: 645 | Type: Agencia | Name: Agencia La Ramada | Assets: 0
+ID: 646 | Type: Agencia | Name: Agencia Mutualista | Assets: 0
+ID: 647 | Type: Agencia | Name: Agencia Montero | Assets: 0
+ID: 648 | Type: Agencia | Name: Agencia Villa Primero de Mayo | Assets: 0
+ID: 649 | Type: Agencia | Name: Aeropuerto Viru Viru | Assets: 0
+ID: 650 | Type: Agencia | Name: Genex | Assets: 0
+ID: 651 | Type: Sucursal | Name: Sucursal Tarija | Assets: 0
+ID: 652 | Type: Agencia | Name: Agencia Bermejo | Assets: 0
+ID: 653 | Type: Sucursal | Name: Sucursal Potosí | Assets: 0
+ID: 654 | Type: Agencia | Name: Agencia Villazón | Assets: 0
+ID: 655 | Type: ATM | Name: ATM Edificio Señor de Mayo | Assets: 0
+ID: 656 | Type: ATM | Name: ATM Cala Cala | Assets: 0
+ID: 657 | Type: ATM | Name: ATM Hotel Cochabamba | Assets: 0
+ID: 658 | Type: ATM | Name: ATM El Prado Cochabamba II | Assets: 0
+ID: 659 | Type: ATM | Name: ATM Aeropuerto Viru Viru | Assets: 0
+ID: 660 | Type: ATM | Name: ATM GENEX | Assets: 0
+ID: 661 | Type: Agencia | Name: Agencia Mercado Campesino | Assets: 0
+
+Total Assets: 54

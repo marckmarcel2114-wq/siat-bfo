@@ -24,12 +24,12 @@ const loading = ref(false);
 const errors = ref<Record<string, string>>({});
 
 const form = ref({
-    name: '',
-    code: '',
+    nombre: '',
+    codigo: '',
 });
 
 const resetForm = () => {
-    form.value = { name: '', code: '' };
+    form.value = { nombre: '', codigo: '' };
     errors.value = {};
 };
 
@@ -97,26 +97,26 @@ const submit = async () => {
             </DialogHeader>
             <div class="grid gap-4 py-4">
                 <div class="grid gap-2">
-                    <Label for="name" class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nombre de la Ciudad</Label>
+                    <Label for="nombre" class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nombre de la Ciudad</Label>
                     <Input 
-                        id="name" 
-                        v-model="form.name" 
+                        id="nombre" 
+                        v-model="form.nombre" 
                         placeholder="Ej. Cochabamba" 
                         class="h-11 bg-background/50"
                         @keyup.enter="submit"
                     />
-                    <p v-if="errors.name" class="text-xs font-semibold text-destructive">{{ errors.name }}</p>
+                    <p v-if="errors.nombre" class="text-xs font-semibold text-destructive">{{ errors.nombre }}</p>
                 </div>
                 <div class="grid gap-2">
-                    <Label for="code" class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Código Ref.</Label>
+                    <Label for="codigo" class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Código Ref.</Label>
                     <Input 
-                        id="code" 
-                        v-model="form.code" 
+                        id="codigo" 
+                        v-model="form.codigo" 
                         placeholder="Ej. CBBA" 
                         class="h-11 bg-background/50 font-mono uppercase"
                         @keyup.enter="submit"
                     />
-                    <p v-if="errors.code" class="text-xs font-semibold text-destructive">{{ errors.code }}</p>
+                    <p v-if="errors.codigo" class="text-xs font-semibold text-destructive">{{ errors.codigo }}</p>
                 </div>
             </div>
             <DialogFooter>

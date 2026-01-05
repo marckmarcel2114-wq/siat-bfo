@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Atm;
 use App\Models\Branch;
 use App\Models\City;
+use App\Models\TipoSucursal;
+use App\Models\Ubicacion;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,22 +14,30 @@ class AtmController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Atm::with(['city', 'parent'])
-            ->leftJoin('cities', 'atms.city_id', '=', 'cities.id')
-            ->select('atms.*')
-            ->orderBy('cities.name')
-            ->orderBy('atms.name');
+        $query = Atm::with(['ciudad', 'tipo', 'padre.tipo']);
 
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('atms.name', 'like', "%{$search}%")
-                  ->orWhere('atms.address', 'like', "%{$search}%")
-                  ->orWhere('cities.name', 'like', "%{$search}%");
+                $q->where('ubicaciones.nombre', 'like', "%{$search}%")
+                  ->orWhere('ubicaciones.direccion', 'like', "%{$search}%")
+                  ->orWhereHas('ciudad', function ($cq) use ($search) {
+                      $cq->where('nombre', 'like', "%{$search}%");
+                  });
             });
         }
 
-        $atms = $query->paginate(100)
+        $atmTypeId = TipoSucursal::where('nombre', 'ATM')->value('id');
+        $atms = $query->where('ubicaciones.tipo_sucursal_id', $atmTypeId)
+            ->join('ciudades', 'ubicaciones.ciudad_id', '=', 'ciudades.id')
+            ->leftJoin('ubicaciones as padre', 'ubicaciones.padre_id', '=', 'padre.id')
+            ->leftJoin('tipos_sucursal as padre_tipo', 'padre.tipo_sucursal_id', '=', 'padre_tipo.id')
+            ->select('ubicaciones.*')
+            ->orderBy('ciudades.nombre')
+            ->orderBy('padre_tipo.sort_order')
+            ->orderBy('padre.nombre')
+            ->orderBy('ubicaciones.nombre')
+            ->paginate(100)
             ->withQueryString();
 
         return Inertia::render('Atms/Index', [
@@ -38,31 +48,37 @@ class AtmController extends Controller
 
     public function create()
     {
+        $atmTypeId = TipoSucursal::where('nombre', 'ATM')->value('id');
+        
         return Inertia::render('Atms/Create', [
-            'cities' => City::orderBy('name')->get(),
-            'potentialParents' => Branch::orderBy('name')->get(),
-            'branchTypes' => \App\Models\BranchType::orderBy('sort_order')->get(),
+            'cities' => City::orderBy('nombre')->get(),
+            'branchTypes' => TipoSucursal::orderBy('sort_order')->get(),
+            'potentialParents' => Ubicacion::where('tipo_sucursal_id', '!=', $atmTypeId)
+                ->orderBy('nombre')
+                ->get(),
         ]);
     }
 
     public function store(Request $request)
     {
+        if ($request->input('padre_id') === 'null') {
+            $request->merge(['padre_id' => null]);
+        }
+
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'city_id' => 'required|exists:cities,id',
-            'parent_id' => 'nullable|string', // Validated manually below
-            'address' => 'nullable|string|max:255',
-            'phones' => 'nullable|string|max:255',
+            'nombre' => 'required|string|max:255',
+            'ciudad_id' => 'required|exists:ciudades,id',
+            'padre_id' => 'nullable|exists:ubicaciones,id',
+            'direccion' => 'nullable|string|max:255',
         ]);
 
-        if ($data['parent_id'] === 'none' || $data['parent_id'] === '') {
-            $data['parent_id'] = null;
-        }
+        $atmTypeId = TipoSucursal::where('nombre', 'ATM')->value('id');
+        $data['tipo_sucursal_id'] = $atmTypeId;
 
         $atm = Atm::create($data);
 
         if ($request->wantsJson()) {
-            return response()->json($atm->load('city', 'parent'));
+            return response()->json($atm->load('ciudad', 'tipo'));
         }
 
         return redirect()->route('atms.index')->with('success', 'ATM creado correctamente.');
@@ -71,12 +87,15 @@ class AtmController extends Controller
     public function edit($id)
     {
         $atm = Atm::findOrFail($id);
+        $atmTypeId = TipoSucursal::where('nombre', 'ATM')->value('id');
 
         return Inertia::render('Atms/Edit', [
             'atm' => $atm,
-            'cities' => City::orderBy('name')->get(),
-            'potentialParents' => Branch::orderBy('name')->get(),
-            'branchTypes' => \App\Models\BranchType::orderBy('sort_order')->get(),
+            'cities' => City::orderBy('nombre')->get(),
+            'branchTypes' => TipoSucursal::orderBy('sort_order')->get(),
+            'potentialParents' => Ubicacion::where('tipo_sucursal_id', '!=', $atmTypeId)
+                ->orderBy('nombre')
+                ->get(),
         ]);
     }
 
@@ -84,17 +103,16 @@ class AtmController extends Controller
     {
         $atm = Atm::findOrFail($id);
 
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'city_id' => 'required|exists:cities,id',
-            'parent_id' => 'nullable|string',
-            'address' => 'nullable|string|max:255',
-            'phones' => 'nullable|string|max:255',
-        ]);
-
-        if ($data['parent_id'] === 'none' || $data['parent_id'] === '') {
-            $data['parent_id'] = null;
+        if ($request->input('padre_id') === 'null') {
+            $request->merge(['padre_id' => null]);
         }
+
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'ciudad_id' => 'required|exists:ciudades,id',
+            'padre_id' => 'nullable|exists:ubicaciones,id',
+            'direccion' => 'nullable|string|max:255',
+        ]);
 
         $atm->update($data);
 

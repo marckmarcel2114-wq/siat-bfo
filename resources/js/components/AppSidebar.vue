@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users, MapPin, Building, Monitor, ShoppingCart, Wrench, Settings2 } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Users, MapPin, Building, Monitor, ShoppingCart, Wrench, Settings2, Activity, ShieldAlert, Disc } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -118,14 +118,7 @@ const footerNavItems: NavItem[] = [
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/atms')" :tooltip="'ATMs'" as-child>
-                            <Link href="/atms">
-                                <Monitor /> <!-- Using Monitor or similar for ATM if strict icon needed, or define custom -->
-                                <span>ATMs</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
+
                 </SidebarMenu>
             </SidebarGroup>
 
@@ -170,11 +163,75 @@ const footerNavItems: NavItem[] = [
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
+                     <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/owners')" :tooltip="'Propietarios'" as-child>
+                            <Link href="/owners">
+                                <Building />
+                                <span>Propietarios</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/job-titles')" :tooltip="'Cargos'" as-child>
+                            <Link href="/job-titles">
+                                <Users />
+                                <span>Cargos</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/brands')" :tooltip="'Marcas'" as-child>
+                            <Link href="/brands">
+                                <Settings2 />
+                                <span>Marcas</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                     <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/models')" :tooltip="'Modelos'" as-child>
+                            <Link href="/models">
+                                <Settings2 />
+                                <span>Modelos</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/software-catalog')" :tooltip="'Software'" as-child>
+                            <Link href="/software-catalog">
+                                <Disc />
+                                <span>Software</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/asset-types')" :tooltip="'Tipos de Activo'" as-child>
                             <Link href="/asset-types">
                                 <Settings2 />
                                 <span>Tipos de Activo</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/asset-status')" :tooltip="'Estados de Activo'" as-child>
+                            <Link href="/asset-status">
+                                <Activity />
+                                <span>Estados de Activo</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/criticality')" :tooltip="'Niveles de Criticidad'" as-child>
+                            <Link href="/criticality">
+                                <ShieldAlert />
+                                <span>Criticidad</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/configs')" :tooltip="'Ajustes del Sistema'" as-child>
+                            <Link href="/configs">
+                                <Settings2 />
+                                <span>Ajustes del Sistema</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

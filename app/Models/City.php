@@ -7,16 +7,26 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class City extends Model
 {
-    protected $fillable = ['name', 'code'];
+    protected $table = 'ciudades';
+    protected $fillable = ['nombre', 'codigo'];
 
-    public function branches(): HasMany
+    public function ubicaciones(): HasMany
     {
-        return $this->hasMany(Branch::class);
+        return $this->hasMany(Ubicacion::class, 'ciudad_id');
+    }
+
+    public function sucursales(): HasMany
+    {
+        return $this->hasMany(Ubicacion::class, 'ciudad_id')->whereHas('tipo', function($q) {
+            $q->where('nombre', '!=', 'ATM');
+        });
     }
 
     public function atms(): HasMany
     {
-        return $this->hasMany(Atm::class);
+        return $this->hasMany(Ubicacion::class, 'ciudad_id')->whereHas('tipo', function($q) {
+            $q->where('nombre', 'ATM');
+        });
     }
     
     public function users(): HasMany
@@ -26,9 +36,6 @@ class City extends Model
 
     public function assets()
     {
-        // This is tricky now because assets can be in branches OR atms.
-        // For now, I'll return assets directly associated with branches.
-        // If needed, we can create a more complex relation.
-        return $this->hasManyThrough(Asset::class, Branch::class, 'city_id', 'location_id');
+        return $this->hasManyThrough(Activo::class, Ubicacion::class, 'ciudad_id', 'ubicacion_id');
     }
 }

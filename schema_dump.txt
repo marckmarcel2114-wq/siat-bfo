@@ -1,0 +1,13 @@
+CREATE TABLE `definiciones_atributos` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `tipo_activo_id` bigint unsigned NOT NULL,
+  `nombre` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_dato` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'text',
+  `opciones` json DEFAULT NULL,
+  `category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'hardware',
+  `orden` int NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `attribute_definitions_tipo_activo_id_nombre_unique` (`tipo_activo_id`,`nombre`)
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
