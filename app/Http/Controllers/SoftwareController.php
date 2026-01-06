@@ -224,7 +224,7 @@ class SoftwareController extends Controller
 
         try {
             DB::transaction(function () use ($id, $validated) {
-                $installation = SoftwareInstallation::with(['software_version.software', 'license'])->findOrFail($id);
+                $installation = SoftwareInstallation::with(['softwareVersion.software', 'license'])->findOrFail($id);
                 $oldVersion = $installation->software_version ? $installation->software_version->version : 'Desconocido';
                 $softwareName = $installation->software_version ? $installation->software_version->software->nombre : ($installation->license ? $installation->license->nombre : 'Software');
 

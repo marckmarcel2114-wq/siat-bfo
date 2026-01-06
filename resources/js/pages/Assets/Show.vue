@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 
@@ -51,15 +51,33 @@ const formatCurrency = (amount: string) => {
     return new Intl.NumberFormat('es-BO', { style: 'currency', currency: 'BOB' }).format(Number(amount));
 };
 
-const isAssigned = props.asset.estado_activo?.nombre === 'Asignado';
+// Local Mutable Asset State
+const localAsset = ref(props.asset);
+watch(() => props.asset, (newVal) => {
+    localAsset.value = newVal;
+}, { deep: true });
+
+const refreshAssetData = async () => {
+    try {
+        // Direct fetch avoiding Inertia AND Cache
+        const response = await axios.get(route('assets.show', localAsset.value.id) + '?t=' + new Date().getTime());
+        if (response.data && response.data.asset) {
+            localAsset.value = response.data.asset;
+        }
+    } catch (e) {
+        console.error("Failed to refresh asset", e);
+    }
+};
+
+const isAssigned = computed(() => localAsset.value.estado_activo?.nombre === 'Asignado');
 const isInMaintenance = computed(() => {
-    const status = props.asset.estado_activo?.nombre?.toLowerCase() || '';
+    const status = localAsset.value.estado_activo?.nombre?.toLowerCase() || '';
     return status.includes('mantenimiento') || status.includes('reparación');
 });
 
 // Latest maintenance for finishing
 const currentMaintenanceId = computed(() => {
-    return props.asset.mantenimientos?.length > 0 ? props.asset.mantenimientos[0].id : null;
+    return localAsset.value.mantenimientos?.length > 0 ? localAsset.value.mantenimientos[0].id : null;
 });
 
 // --- Software Catalog Data ---
@@ -81,27 +99,80 @@ onMounted(async () => {
 });
 
 // --- Software Installation logic ---
-const showInstallForm = ref(false);
+// --- Software Installation logic ---
+// --- Unified Installation Logic ---
+const isInstallModalOpen = ref(false);
+const installMode = ref<'existing' | 'new'>('existing');
 
+// Unified Form
 const softwareForm = useForm({
+    // Existing Mode
     license_id: '',
     software_version_id: '',
+    
+    // New Mode Fields
+    new_software_name: '',
+    new_software_version: '',
+    
     activo_id: props.asset.id,
     observaciones: ''
 });
 
-const toggleInstallForm = (show: boolean) => {
-    showInstallForm.value = show;
-    if (!show) {
-        softwareForm.reset();
-        selectedSoftwareId.value = '';
-    }
+const openInstallModal = () => {
+    softwareForm.reset();
+    selectedSoftwareId.value = '';
+    installMode.value = 'existing';
+    isInstallModalOpen.value = true;
 };
 
-const submitInstall = () => {
+const closeInstallModal = () => {
+    isInstallModalOpen.value = false;
+    softwareForm.reset();
+    selectedSoftwareId.value = '';
+};
+
+const submitInstall = async () => {
+    if (installMode.value === 'new') {
+        // Validation for new
+        if (!softwareForm.new_software_name || !softwareForm.new_software_version) {
+             alert('Debe ingresar el nombre y versión del software.');
+             return;
+        }
+        
+        try {
+             // 1. Create Catalog Item
+             const catRes = await axios.post(route('software-catalog.store'), {
+                 nombre: softwareForm.new_software_name,
+                 tipo: 'Software',
+                 fabricante: 'Desconocido'
+             });
+             const newSoft = catRes.data;
+             
+             // 2. Create Version
+             const verRes = await axios.post(route('software-catalog.versions.store', newSoft.id), {
+                 version: softwareForm.new_software_version
+             });
+             const newVer = verRes.data;
+             
+             // 3. Set IDs for Installation
+             softwareForm.software_version_id = newVer.id;
+             
+             // Refresh catalog silently in background for next time
+             axios.get(route('api.software-catalog')).then(r => softwareCatalog.value = r.data);
+             
+        } catch (e: any) {
+             console.error("Creation failed", e);
+             alert('Error al crear el software: ' + (e.response?.data?.message || e.message));
+             return; // Stop
+        }
+    }
+
+    // Proceed with Installation (Standard)
     softwareForm.post(route('software.install'), {
         onSuccess: () => {
-            toggleInstallForm(false);
+            closeInstallModal();
+            alert('¡Software instalado correctamente!');
+            refreshAssetData();
         },
         onError: (errors) => {
             console.error("Install failed", errors);
@@ -127,6 +198,8 @@ const logForm = useForm({
     notes: ''
 });
 
+// Redundant close function removed (moved up)
+
 const submitLog = () => {
     logForm.post(route('assets.software.log', props.asset.id), {
         onSuccess: () => {
@@ -146,7 +219,7 @@ const getActionBadge = (action: string) => {
 };
 
 // --- Upgrade Software Logic ---
-const showUpgradeDialog = ref(false);
+const showUpgradeInlineId = ref<number | null>(null);
 const upgradeForm = useForm({
     id: 0,
     software_version_id: '',
@@ -166,6 +239,12 @@ const upgradeVersions = computed(() => {
 });
 
 const openUpgrade = (installation: any) => {
+    // Toggle off if same
+    if (showUpgradeInlineId.value === installation.id) {
+        showUpgradeInlineId.value = null;
+        return;
+    }
+
     currentUpgradeInstallation.value = installation;
     upgradeForm.id = installation.id;
     upgradeForm.software_version_id = ''; 
@@ -179,92 +258,33 @@ const openUpgrade = (installation: any) => {
         upgradeSoftwareId.value = '';
     }
     
-    showUpgradeDialog.value = true;
+    showUpgradeInlineId.value = installation.id;
 };
 
 const submitUpgrade = () => {
     upgradeForm.put(route('software.upgrade', upgradeForm.id), {
         onSuccess: () => {
-             // Refresh Data
-             axios.get(route('api.software-catalog')).then(r => softwareCatalog.value = r.data);
-            showUpgradeDialog.value = false;
+            // Close form immediately
+            showUpgradeInlineId.value = null;
             upgradeForm.reset();
             currentUpgradeInstallation.value = null;
+            
+            alert('¡Actualización registrada con éxito!');
+            
+            // Refresh data
+            refreshAssetData();
+            axios.get(route('api.software-catalog')).then(r => softwareCatalog.value = r.data);
+        },
+        onError: (errors: any) => {
+            console.error("Upgrade failed", errors);
+            const msg = Object.values(errors).join('\n');
+            alert('Error al actualizar: ' + (msg || 'Verifique los datos e intente nuevamente.'));
         }
     });
 };
 
 // --- New Catalog Item Modal ---
-const isCatalogModalOpen = ref(false);
-const catalogForm = useForm({
-    nombre: '',
-    fabricante: '',
-    tipo: 'Software',
-    descripcion: ''
-});
-
-const submitCatalogItem = async () => {
-    if (!catalogForm.nombre) {
-        alert('El nombre es obligatorio.');
-        return;
-    }
-
-    try {
-        const response = await axios.post(route('software-catalog.store'), catalogForm.data());
-        
-        if (response.status === 200 || response.status === 201) {
-            const newSoft = response.data;
-            
-            // Refresh the whole catalog
-            const res = await axios.get(route('api.software-catalog'));
-            softwareCatalog.value = res.data;
-            
-            // Auto-select the NEW software
-            selectedSoftwareId.value = newSoft.id.toString();
-            softwareForm.software_version_id = '';
-            
-            isCatalogModalOpen.value = false;
-            catalogForm.reset();
-            alert('Software "' + newSoft.nombre + '" catalogado correctamente.');
-        } else {
-            throw new Error('Unexpected status: ' + response.status);
-        }
-    } catch (e: any) {
-        console.error("Failed to save catalog item", e);
-        const msg = e.response?.data?.message || 'Error desconocido al guardar.';
-        alert('Hubo un error al guardar en el catálogo: ' + msg);
-    }
-};
-
-// --- New Version Modal ---
-const isVersionModalOpen = ref(false);
-const versionForm = useForm({
-    version: '',
-    descripcion: ''
-});
-
-const submitVersion = async () => {
-    if (!selectedSoftwareId.value) return;
-    
-    try {
-        const response = await axios.post(route('software-catalog.versions.store', selectedSoftwareId.value), versionForm.data());
-        const newVer = response.data;
-        
-        // Find the software in the local catalog and add the version
-        const softIdx = softwareCatalog.value.findIndex(s => s.id.toString() === selectedSoftwareId.value);
-        if (softIdx !== -1) {
-            softwareCatalog.value[softIdx].versions.unshift(newVer);
-        }
-        
-        // Auto-select
-        softwareForm.software_version_id = newVer.id.toString();
-        
-        isVersionModalOpen.value = false;
-        versionForm.reset();
-    } catch (e) {
-        console.error("Failed to save version", e);
-    }
-};
+// Old separate modals logic removed for cleanup
 </script>
 
 <template>
@@ -425,7 +445,7 @@ const submitVersion = async () => {
                         </CardHeader>
                         <CardContent class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div v-for="attr in asset.atributos.filter(a => a.definicion?.category === 'software')" :key="attr.id" class="flex justify-between p-3 border rounded-lg hover:border-blue-200 transition-colors bg-slate-50">
+                                <div v-for="attr in localAsset.atributos.filter(a => a.definicion?.category === 'software')" :key="attr.id" class="flex justify-between p-3 border rounded-lg hover:border-blue-200 transition-colors bg-slate-50">
                                     <span class="font-medium text-muted-foreground">{{ attr.definicion?.nombre }}</span>
                                     <span class="font-bold text-slate-800">{{ attr.valor }}</span>
                                 </div>
@@ -446,84 +466,14 @@ const submitVersion = async () => {
                                         <CardDescription>Aplicaciones instaladas desde el catálogo y licencias activas.</CardDescription>
                                     </div>
                                 </div>
-                                <Button size="sm" @click="toggleInstallForm(!showInstallForm)" :variant="showInstallForm ? 'outline' : 'default'" class="shadow-lg transition-all active:scale-95" :class="showInstallForm ? 'border-emerald-200 text-emerald-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'">
-                                    <Plus v-if="!showInstallForm" class="mr-2 h-4 w-4" />
-                                    <X v-else class="mr-2 h-4 w-4" />
-                                    {{ showInstallForm ? 'Cerrar Formulario' : 'Instalar Software (+)' }}
+                                <Button size="sm" @click="openInstallModal" class="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20 shadow-lg transition-all active:scale-95">
+                                    <Plus class="mr-2 h-4 w-4" />
+                                    Instalar Software
                                 </Button>
                             </div>
                         </CardHeader>
                         <CardContent class="p-0">
-                            <!-- INLINE INSTALLATION FORM -->
-                            <div v-if="showInstallForm" class="p-6 bg-emerald-50/30 border-b border-emerald-100 animate-in fade-in slide-in-from-top-2">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600"><Plus class="h-4 w-4" /></div>
-                                    <h3 class="font-bold text-slate-800">Nueva Instalación de Software</h3>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
-                                    <!-- Software -->
-                                    <div class="space-y-1.5">
-                                        <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Software (Catálogo)</Label>
-                                        <div class="flex gap-1.5">
-                                            <div class="flex-1">
-                                                <Select v-model="selectedSoftwareId" @update:modelValue="() => { softwareForm.software_version_id = ''; }">
-                                                    <SelectTrigger class="h-10 bg-white border-slate-200"><SelectValue placeholder="Buscar..." /></SelectTrigger>
-                                                    <SelectContent class="z-[100] max-h-[200px]">
-                                                        <SelectItem v-for="soft in softwareCatalog" :key="soft.id" :value="soft.id.toString()">{{ soft.nombre }}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <Button variant="outline" size="icon" @click="isCatalogModalOpen = true" class="h-10 w-10 shrink-0 border-dashed border-slate-300 text-slate-500 hover:text-emerald-600 hover:border-emerald-200" title="Nuevo Software">
-                                                <Plus class="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Version -->
-                                    <div class="space-y-1.5">
-                                        <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Versión</Label>
-                                        <div class="flex gap-1.5">
-                                            <div class="flex-1">
-                                                <Select v-model="softwareForm.software_version_id" :disabled="!selectedSoftwareId">
-                                                    <SelectTrigger class="h-10 bg-white border-slate-200"><SelectValue placeholder="Seleccione..." /></SelectTrigger>
-                                                    <SelectContent class="z-[100] max-h-[200px]">
-                                                        <SelectItem v-for="ver in availableVersions" :key="ver.id" :value="ver.id.toString()">{{ ver.version }}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <Button variant="outline" size="icon" @click="isVersionModalOpen = true" :disabled="!selectedSoftwareId" class="h-10 w-10 shrink-0 border-dashed border-slate-300 text-slate-500 hover:text-emerald-600 hover:border-emerald-200" title="Nueva Versión">
-                                                <Plus class="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    <!-- License -->
-                                    <div class="space-y-1.5">
-                                        <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Vincular Licencia</Label>
-                                        <Select v-model="softwareForm.license_id">
-                                            <SelectTrigger class="h-10 bg-white border-slate-200"><SelectValue placeholder="Opcional..." /></SelectTrigger>
-                                            <SelectContent class="z-[100] max-h-[200px]">
-                                                <SelectItem value="">Sin Licencia (Gratis)</SelectItem>
-                                                <SelectItem v-for="lic in availableLicenses" :key="lic.id" :value="lic.id.toString()">{{ lic.nombre }}</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <!-- Actions -->
-                                    <div class="flex gap-2">
-                                        <Button type="button" @click="submitInstall" :disabled="softwareForm.processing || !softwareForm.software_version_id" class="flex-1 bg-emerald-600 hover:bg-emerald-700 h-10 shadow-md">Instalar</Button>
-                                        <Button type="button" variant="outline" @click="toggleInstallForm(false)" class="h-10 text-slate-500 hover:bg-slate-50 px-4">Cancelar</Button>
-                                    </div>
-
-                                    <!-- Observations (Full width) -->
-                                    <div class="md:col-span-2 lg:col-span-4 space-y-1.5">
-                                        <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Notas del Técnico</Label>
-                                        <Input v-model="softwareForm.observaciones" placeholder="Ticket #, motivo, etc..." class="h-10 bg-white border-slate-200" />
-                                    </div>
-                                </div>
-                            </div>
-
+                            <!-- Software Table -->
                             <Table>
                                 <TableHeader class="bg-slate-50/30">
                                     <TableRow>
@@ -534,41 +484,121 @@ const submitVersion = async () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    <TableRow v-for="inst in asset.software_installations" :key="inst.id" class="group hover:bg-slate-50/50 transition-colors">
-                                        <TableCell class="py-5">
-                                            <!-- Logic to Display either Catalog Name or License Name -->
-                                            <template v-if="inst.software_version">
-                                                <p class="font-bold text-slate-900 leading-tight">{{ inst.software_version?.software?.nombre }}</p>
-                                                <p class="text-xs text-emerald-600 font-mono mt-1">{{ inst.software_version?.version }} (Catalogado)</p>
-                                            </template>
-                                            <template v-else>
-                                                <p class="font-bold text-slate-900 leading-tight">{{ inst.license?.nombre }}</p>
-                                                <p class="text-xs text-amber-600 font-mono mt-1">Legado / Solo Licencia</p>
-                                            </template>
-                                            <p class="text-[10px] text-slate-500 mt-1" v-if="inst.observaciones">{{ inst.observaciones }}</p>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge v-if="inst.license" variant="outline" class="font-bold text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
-                                                {{ inst.license?.tipo }}
-                                            </Badge>
-                                            <span v-else class="text-xs text-slate-400 italic">Sin Licencia / Gratuito</span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <p class="text-sm font-medium">{{ formatDate(inst.fecha_instalacion) }}</p>
-                                            <p class="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5"><UserCheck class="h-3 w-3" /> {{ inst.registrador?.name }}</p>
-                                        </TableCell>
-                                        <TableCell class="text-right pr-6">
-                                            <div class="flex items-center justify-end gap-1">
-                                                <Button variant="ghost" size="icon" @click="openUpgrade(inst)" class="text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-full h-8 w-8 transition-colors" title="Actualizar Versión">
-                                                    <RefreshCw class="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" @click="uninstallSoftware(inst.id)" class="text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full h-8 w-8 transition-colors" title="Desinstalar">
-                                                    <Trash2 class="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow v-if="asset.software_installations.length === 0">
+                                    <template v-for="inst in localAsset.software_installations" :key="inst.id">
+                                        <TableRow class="group hover:bg-slate-50/50 transition-colors" :class="showUpgradeInlineId === inst.id ? 'bg-blue-50/30' : ''">
+                                            <TableCell class="py-5">
+                                                <!-- Logic to Display either Catalog Name or License Name -->
+                                                <template v-if="inst.software_version">
+                                                    <p class="font-bold text-slate-900 leading-tight">{{ inst.software_version?.software?.nombre || 'Software sin nombre' }}</p>
+                                                    <p class="text-xs text-emerald-600 font-mono mt-1">{{ inst.software_version?.version }} (Catalogado)</p>
+                                                </template>
+                                                <template v-else>
+                                                    <p class="font-bold text-slate-900 leading-tight">{{ inst.license?.nombre || 'Registro Legado / Manual' }}</p>
+                                                    <p class="text-xs text-amber-600 font-mono mt-1">Sin Catalogación / Licencia</p>
+                                                </template>
+                                                <p class="text-[10px] text-slate-500 mt-1" v-if="inst.observaciones">{{ inst.observaciones }}</p>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge v-if="inst.license" variant="outline" class="font-bold text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
+                                                    {{ inst.license?.tipo }}
+                                                </Badge>
+                                                <span v-else class="text-xs text-slate-400 italic">Sin Licencia / Gratuito</span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <p class="text-sm font-medium">{{ formatDate(inst.fecha_instalacion) }}</p>
+                                                <p class="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5"><UserCheck class="h-3 w-3" /> {{ inst.registrador?.name }}</p>
+                                            </TableCell>
+                                            <TableCell class="text-right pr-6">
+                                                <div class="flex items-center justify-end gap-1">
+                                                    <Button variant="ghost" size="icon" @click="openUpgrade(inst)" 
+                                                        class="rounded-full h-8 w-8 transition-all active:scale-95" 
+                                                        :class="showUpgradeInlineId === inst.id ? 'bg-blue-600 text-white hover:bg-blue-700' : 'text-blue-400 hover:text-blue-600 hover:bg-blue-50'"
+                                                        title="Actualizar Versión">
+                                                        <RefreshCw class="h-4 w-4" :class="showUpgradeInlineId === inst.id ? 'animate-spin-slow' : ''" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" @click="uninstallSoftware(inst.id)" class="text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full h-8 w-8 transition-colors" title="Desinstalar">
+                                                        <Trash2 class="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+
+                                        <!-- INLINE UPGRADE FORM -->
+                                        <TableRow v-if="showUpgradeInlineId === inst.id" class="bg-blue-50/50 border-x border-blue-100 animate-in fade-in slide-in-from-top-1">
+                                            <TableCell colspan="4" class="p-0">
+                                                <div class="p-6 space-y-4">
+                                                    <div class="flex items-center justify-between mb-2">
+                                                        <div class="flex items-center gap-3">
+                                                            <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md"><RefreshCw class="h-4 w-4" /></div>
+                                                            <h4 class="font-bold text-slate-800">Registrar Actualización de Versión</h4>
+                                                        </div>
+                                                        <Badge variant="outline" class="bg-blue-50 text-blue-700 border-blue-200">
+                                                            Versión Actual: {{ inst.software_version?.version || 'Legado' }}
+                                                        </Badge>
+                                                    </div>
+
+                                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                                                        <!-- Software Selection / Display -->
+                                                        <div class="space-y-1.5 md:col-span-1">
+                                                            <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Software</Label>
+                                                            <div v-if="!inst.software_version">
+                                                                <Select v-model="upgradeSoftwareId">
+                                                                    <SelectTrigger class="h-10 bg-white border-slate-200"><SelectValue placeholder="Vincular a..." /></SelectTrigger>
+                                                                    <SelectContent class="z-[100] max-h-[200px]">
+                                                                        <SelectItem v-for="soft in softwareCatalog" :key="soft.id" :value="soft.id.toString()">{{ soft.nombre }}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <p class="text-[9px] text-amber-600 mt-1 font-medium">Requiere vinculación con catálogo</p>
+                                                            </div>
+                                                            <div v-else class="h-10 flex items-center px-3 bg-slate-50 border border-slate-100 rounded-md text-sm font-bold text-slate-700">
+                                                                {{ inst.software_version?.software?.nombre }}
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- New Version -->
+                                                        <div class="space-y-1.5 md:col-span-1">
+                                                            <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Nueva Versión</Label>
+                                                            <div class="flex gap-1.5">
+                                                                <div class="flex-1">
+                                                                    <Select v-model="upgradeForm.software_version_id" :disabled="!upgradeSoftwareId">
+                                                                        <SelectTrigger class="h-10 bg-white border-slate-200"><SelectValue placeholder="Seleccione..." /></SelectTrigger>
+                                                                        <SelectContent class="z-[100] max-h-[200px]">
+                                                                            <SelectItem v-for="ver in upgradeVersions" :key="ver.id" :value="ver.id.toString()" :disabled="ver.id === inst.software_version_id">
+                                                                                {{ ver.version }} {{ ver.id === inst.software_version_id ? '(Actual)' : '' }}
+                                                                            </SelectItem>
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </div>
+                                                                <Button variant="outline" size="icon" @click="isVersionModalOpen = true" :disabled="!upgradeSoftwareId" class="h-10 w-10 shrink-0 border-dashed border-slate-300 text-slate-500 hover:text-blue-600 hover:border-blue-200" title="Nueva Versión">
+                                                                    <Plus class="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                            <p v-if="upgradeForm.errors.software_version_id" class="text-[10px] text-red-500 font-bold mt-1 text-right">{{ upgradeForm.errors.software_version_id }}</p>
+                                                        </div>
+
+                                                        <!-- Date -->
+                                                        <div class="space-y-1.5">
+                                                            <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Fecha de Cambio</Label>
+                                                            <Input type="date" v-model="upgradeForm.fecha_actualizacion" class="h-10 bg-white border-slate-200" />
+                                                        </div>
+
+                                                        <!-- Notes -->
+                                                        <div class="md:col-span-2 space-y-1.5">
+                                                            <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Notas de la Actualización</Label>
+                                                            <Input v-model="upgradeForm.observaciones" placeholder="Motivo, ticket, etc..." class="h-10 bg-white border-slate-200" />
+                                                        </div>
+
+                                                        <!-- Actions -->
+                                                        <div class="flex gap-2">
+                                                            <Button type="button" @click="submitUpgrade" :disabled="upgradeForm.processing || !upgradeForm.software_version_id" class="flex-1 bg-blue-600 hover:bg-blue-700 h-10 shadow-md">Actualizar</Button>
+                                                            <Button type="button" variant="outline" @click="showUpgradeInlineId = null" class="h-10 text-slate-500 hover:bg-slate-50 px-4">Cerrar</Button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    </template>
+                                    <TableRow v-if="localAsset.software_installations.length === 0">
                                         <TableCell colspan="4" class="py-8 text-center text-slate-400 italic text-sm">Sin software registrado.</TableCell>
                                     </TableRow>
                                 </TableBody>
@@ -744,89 +774,6 @@ const submitVersion = async () => {
         </Dialog>
 
 
-        <!-- Update Software Version Dialog -->
-        <Dialog v-model:open="showUpgradeDialog">
-            <DialogContent class="sm:max-w-[450px] p-0 overflow-hidden gap-0 rounded-xl">
-                 <DialogHeader class="p-6 pb-2 flex-row gap-4 items-start space-y-0">
-                    <div class="h-10 w-10 rounded-lg bg-blue-100/50 flex items-center justify-center text-blue-600 shrink-0 border border-blue-200/50">
-                        <RefreshCw class="h-5 w-5" />
-                    </div>
-                    <div class="flex-1 pt-0.5">
-                        <DialogTitle class="text-lg font-bold text-slate-900">Nueva Versión de Software</DialogTitle>
-                        <DialogDescription class="text-slate-500 mt-0.5">
-                            Registrar cambio de versión para: 
-                            <span class="font-bold text-slate-700 block mt-1">
-                                {{ currentUpgradeInstallation?.software_version?.software?.nombre || currentUpgradeInstallation?.license?.nombre || 'Software Desconocido' }}
-                            </span>
-                        </DialogDescription>
-                    </div>
-                </DialogHeader>
-
-                <div class="px-6 py-4 space-y-5">
-                     <!-- Current Version Info -->
-                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-center">
-                        <div class="text-xs text-slate-600">
-                            <span class="font-bold uppercase tracking-wider text-slate-400 block mb-0.5 text-[10px]">Versión Actual</span>
-                            {{ currentUpgradeInstallation?.software_version?.version || 'Legado / Desconocido' }}
-                             <span v-if="!currentUpgradeInstallation?.software_version" class="block text-[10px] text-amber-600 mt-1 flex items-center gap-1">
-                                <AlertTriangle class="h-3 w-3" /> Requiere vinculación con catálogo.
-                             </span>
-                        </div>
-                     </div>
-
-                     <!-- Legacy: Select Software First -->
-                     <div v-if="!currentUpgradeInstallation?.software_version" class="space-y-1.5">
-                        <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Vincular con Software (Catálogo)</Label>
-                        <Select v-model="upgradeSoftwareId">
-                            <SelectTrigger class="h-10 bg-white border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-md"><SelectValue placeholder="Buscar software..." /></SelectTrigger>
-                            <SelectContent class="z-[9999] max-h-[200px]">
-                                <SelectItem v-for="soft in softwareCatalog" :key="soft.id" :value="soft.id.toString()">
-                                    {{ soft.nombre }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <p class="text-[10px] text-slate-400">Seleccione el software oficial para migrar este registro antiguo.</p>
-                     </div>
-
-                     <!-- New Version Selection -->
-                     <div class="space-y-1.5">
-                        <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Nueva Versión</Label>
-                        <div class="flex gap-2">
-                             <div class="flex-1">
-                                <Select v-model="upgradeForm.software_version_id" :disabled="!upgradeSoftwareId">
-                                    <SelectTrigger class="h-10 bg-white border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-md"><SelectValue placeholder="Seleccione versión..." /></SelectTrigger>
-                                    <SelectContent class="z-[9999] max-h-[200px]">
-                                        <SelectItem v-for="ver in upgradeVersions" :key="ver.id" :value="ver.id.toString()" :disabled="ver.id === currentUpgradeInstallation?.software_version_id">
-                                            {{ ver.version }} {{ ver.id === currentUpgradeInstallation?.software_version_id ? '(Actual)' : '' }}
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                             </div>
-                             <Button v-if="upgradeSoftwareId" variant="outline" size="icon" as-child class="h-10 w-10 shrink-0 border-dashed border-slate-300 text-slate-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50" title="Crear Nueva Versión">
-                                <a :href="route('software-catalog.show', upgradeSoftwareId)" target="_blank">
-                                    <Plus class="h-4 w-4" />
-                                </a>
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Fecha de Actualización</Label>
-                        <Input type="date" v-model="upgradeForm.fecha_actualizacion" class="h-10 bg-white border-slate-200" />
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <Label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Notas / Observaciones</Label>
-                        <Textarea v-model="upgradeForm.observaciones" placeholder="Motivo de la actualización..." class="h-20 resize-none bg-slate-50 border-slate-200" />
-                    </div>
-                </div>
-
-                <DialogFooter class="px-6 py-4 bg-slate-50/50 flex gap-2 justify-end border-t border-slate-100">
-                    <Button variant="ghost" @click="showUpgradeDialog = false">Cancelar</Button>
-                    <Button @click="submitUpgrade" :disabled="upgradeForm.processing || !upgradeForm.software_version_id" class="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/10"> Registrar Actualización</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
 
         <!-- New Version Modal -->
         <Dialog v-model:open="isVersionModalOpen">
@@ -854,5 +801,97 @@ const submitVersion = async () => {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+        <!-- NEW INSTALLATION MODAL -->
+        <Dialog :open="isInstallModalOpen" @update:open="val => !val && closeInstallModal()">
+            <DialogContent class="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600"><Plus class="h-5 w-5" /></div>
+                        <div>
+                            <DialogTitle class="text-xl font-bold">Nueva Instalación de Software</DialogTitle>
+                            <DialogDescription>
+                                Gestione el software instalado en este activo.
+                            </DialogDescription>
+                        </div>
+                    </div>
+                    <!-- TABS -->
+                    <div class="flex p-1 bg-slate-100 rounded-lg mt-4 w-fit">
+                        <button @click="installMode = 'existing'" class="px-4 py-1.5 text-sm font-bold rounded-md transition-all" :class="installMode === 'existing' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'">Seleccionar Existente</button>
+                        <button @click="installMode = 'new'" class="px-4 py-1.5 text-sm font-bold rounded-md transition-all" :class="installMode === 'new' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'">Registrar Nuevo</button>
+                    </div>
+                </DialogHeader>
+
+                <div class="grid gap-6 py-6" v-if="installMode === 'existing'">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                        <!-- Software -->
+                        <div class="space-y-1.5 md:col-span-1">
+                            <Label class="text-sm font-bold text-slate-700">Software (Catálogo)</Label>
+                             <Select v-model="selectedSoftwareId" @update:modelValue="() => { softwareForm.software_version_id = ''; }">
+                                <SelectTrigger class="h-11 bg-white border-slate-200 shadow-sm"><SelectValue placeholder="Buscar software..." /></SelectTrigger>
+                                <SelectContent class="z-[100] max-h-[300px]">
+                                    <SelectItem v-for="soft in softwareCatalog" :key="soft.id" :value="soft.id.toString()">{{ soft.nombre }}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <!-- Version -->
+                        <div class="space-y-1.5 md:col-span-1">
+                            <Label class="text-sm font-bold text-slate-700">Versión</Label>
+                            <Select v-model="softwareForm.software_version_id" :disabled="!selectedSoftwareId">
+                                <SelectTrigger class="h-11 bg-white border-slate-200 shadow-sm"><SelectValue placeholder="Seleccione versión..." /></SelectTrigger>
+                                <SelectContent class="z-[100] max-h-[300px]">
+                                    <SelectItem v-for="ver in availableVersions" :key="ver.id" :value="ver.id.toString()">{{ ver.version }}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 py-6" v-if="installMode === 'new'">
+                    <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100 mb-2">
+                        <p class="text-sm text-emerald-800 font-medium">Registrando nuevo software en catálogo.</p>
+                    </div>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                        <div class="space-y-1.5 md:col-span-1">
+                            <Label class="text-sm font-bold text-slate-700">Nombre del Software</Label>
+                            <Input v-model="softwareForm.new_software_name" placeholder="Ej: Adobe Photoshop 2024" class="h-11 shadow-sm" />
+                        </div>
+                        <div class="space-y-1.5 md:col-span-1">
+                             <Label class="text-sm font-bold text-slate-700">Versión Inicial</Label>
+                            <Input v-model="softwareForm.new_software_version" placeholder="Ej: 25.0.0" class="h-11 shadow-sm" />
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Common Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-100">
+                     <!-- License -->
+                    <div class="space-y-1.5 md:col-span-1">
+                        <Label class="text-sm font-bold text-slate-700">Vincular Licencia</Label>
+                        <Select v-model="softwareForm.license_id">
+                            <SelectTrigger class="h-11 bg-white border-slate-200 shadow-sm"><SelectValue placeholder="Opcional (Gratuito)" /></SelectTrigger>
+                            <SelectContent class="z-[100] max-h-[300px]">
+                                <SelectItem value="">Sin Licencia (Gratis)</SelectItem>
+                                <SelectItem v-for="lic in availableLicenses" :key="lic.id" :value="lic.id.toString()">{{ lic.nombre }}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <!-- Observations (Full width) -->
+                    <div class="space-y-1.5 md:col-span-1">
+                        <Label class="text-sm font-bold text-slate-700">Notas / Ticket</Label>
+                        <Input v-model="softwareForm.observaciones" placeholder="Ej: Solicitado en Ticket #1234..." class="h-11 bg-white border-slate-200 shadow-sm" />
+                    </div>
+                </div>
+
+                <DialogFooter class="gap-2 sm:gap-0 mt-6">
+                    <Button variant="ghost" @click="closeInstallModal" class="h-11">Cancelar</Button>
+                    <Button type="button" @click="submitInstall" :disabled="softwareForm.processing" class="bg-emerald-600 hover:bg-emerald-700 text-white h-11 px-8 shadow-md">
+                        {{ installMode === 'new' ? 'Guardar e Instalar' : 'Instalar Ahora' }}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
     </AppLayout>
 </template>

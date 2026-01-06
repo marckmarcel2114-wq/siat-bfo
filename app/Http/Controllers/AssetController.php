@@ -247,7 +247,8 @@ class AssetController extends Controller
             'estadoActivo',
             'mantenimientos.proveedor',
             'assignments.usuario', // For History
-            'softwareInstallations.license', // Phase 24
+            'softwareInstallations.license', 
+            'softwareInstallations.softwareVersion.software', // Added for name display
             'softwareInstallations.registrador',
             'softwareLogs.performer',
             'networkAssignment.puntoRed'
@@ -256,6 +257,12 @@ class AssetController extends Controller
         $availableLicenses = \App\Models\SoftwareLicense::whereColumn('seats_used', '<', 'seats_total')
             ->orderBy('nombre')
             ->get();
+
+        if (request()->wantsJson() && !request()->header('X-Inertia')) {
+            return response()->json([
+                'asset' => $activo
+            ]);
+        }
 
         return Inertia::render('Assets/Show', [
             'asset' => $activo,
