@@ -11,9 +11,11 @@ import { ArrowLeft, Save, Disc, Briefcase, Key, Calendar } from 'lucide-vue-next
 
 const props = defineProps<{
     proveedores: Array<any>;
+    softwareCatalog: Array<any>;
 }>();
 
 const form = useForm({
+    software_id: null, // NEW
     nombre: '',
     key: '',
     tipo: 'OEM',
@@ -56,9 +58,24 @@ const submit = () => {
                     </CardHeader>
                     <CardContent class="pt-8 space-y-8">
                         <div class="space-y-3">
-                            <Label for="nombre" class="text-xs font-bold uppercase text-muted-foreground tracking-tight">Nombre Comercial</Label>
-                            <Input id="nombre" v-model="form.nombre" placeholder="Ej: Microsoft Office 2024 Professional Plus" required class="h-12 text-lg font-bold border-slate-200 focus:ring-blue-500/20 shadow-sm" />
-                            <p v-if="form.errors.nombre" class="text-xs text-red-500 font-medium">{{ form.errors.nombre }}</p>
+                            <Label for="nombre" class="text-xs font-bold uppercase text-muted-foreground tracking-tight">Software Vinculado</Label>
+                             <Select v-model="form.software_id" @update:modelValue="(id) => { 
+                                     const soft = props.softwareCatalog.find(s => s.id === id); 
+                                     if(soft && !form.nombre) form.nombre = soft.nombre; 
+                                 }">
+                                <SelectTrigger class="h-12 border-slate-200 focus:ring-blue-500/20">
+                                    <SelectValue placeholder="Seleccione del Catálogo..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem v-for="cat in softwareCatalog" :key="cat.id" :value="cat.id">{{ cat.nombre }}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div class="space-y-3">
+                            <Label for="nombre_licencia" class="text-xs font-bold uppercase text-muted-foreground tracking-tight">Nombre de la Licencia</Label>
+                            <Input id="nombre_licencia" v-model="form.nombre" placeholder="Ej: Microsoft Office 2024 Professional Plus VL" required class="h-12 text-lg font-bold border-slate-200 focus:ring-blue-500/20 shadow-sm" />
+                            <p class="text-xs text-slate-400">Descriptivo (ej: Contrato 2024)</p>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">

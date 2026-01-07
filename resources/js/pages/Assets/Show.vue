@@ -101,18 +101,18 @@ onMounted(async () => {
 // --- Software Installation logic ---
 // --- Software Installation logic ---
 // --- Unified Installation Logic ---
+// --- Unified Installation Logic ---
 const isInstallModalOpen = ref(false);
-const installMode = ref<'existing' | 'new'>('existing');
+const licenseMode = ref<'none' | 'shared' | 'oem' | ''>('');
 
 // Unified Form
 const softwareForm = useForm({
-    // Existing Mode
-    license_id: '',
+    // Strict Software Selection
     software_version_id: '',
     
-    // New Mode Fields
-    new_software_name: '',
-    new_software_version: '',
+    // License Options
+    license_id: '',       // For 'shared'
+    new_license_key: '',  // For 'oem'
     
     activo_id: props.asset.id,
     observaciones: ''
@@ -121,7 +121,7 @@ const softwareForm = useForm({
 const openInstallModal = () => {
     softwareForm.reset();
     selectedSoftwareId.value = '';
-    installMode.value = 'existing';
+    licenseMode.value = ''; // Force selection
     isInstallModalOpen.value = true;
 };
 
@@ -132,42 +132,23 @@ const closeInstallModal = () => {
 };
 
 const submitInstall = async () => {
-    if (installMode.value === 'new') {
-        // Validation for new
-        if (!softwareForm.new_software_name || !softwareForm.new_software_version) {
-             alert('Debe ingresar el nombre y versión del software.');
-             return;
-        }
-        
-        try {
-             // 1. Create Catalog Item
-             const catRes = await axios.post(route('software-catalog.store'), {
-                 nombre: softwareForm.new_software_name,
-                 tipo: 'Software',
-                 fabricante: 'Desconocido'
-             });
-             const newSoft = catRes.data;
-             
-             // 2. Create Version
-             const verRes = await axios.post(route('software-catalog.versions.store', newSoft.id), {
-                 version: softwareForm.new_software_version
-             });
-             const newVer = verRes.data;
-             
-             // 3. Set IDs for Installation
-             softwareForm.software_version_id = newVer.id;
-             
-             // Refresh catalog silently in background for next time
-             axios.get(route('api.software-catalog')).then(r => softwareCatalog.value = r.data);
-             
-        } catch (e: any) {
-             console.error("Creation failed", e);
-             alert('Error al crear el software: ' + (e.response?.data?.message || e.message));
-             return; // Stop
-        }
+    // Validate Mode Selection
+    if (!licenseMode.value) {
+        alert('Por favor, seleccione una opción de Licencia (Paso 2).');
+        return;
     }
 
-    // Proceed with Installation (Standard)
+    // Client-side validation for OEM
+    if (licenseMode.value === 'oem' && (!softwareForm.new_license_key || softwareForm.new_license_key.length < 5)) {
+        alert('Debe ingresar una clave válida para la licencia OEM.');
+        return;
+    }
+    
+    // Clear unused fields based on mode
+    if (licenseMode.value !== 'shared') softwareForm.license_id = '';
+    if (licenseMode.value !== 'oem') softwareForm.new_license_key = '';
+
+    // Proceed with Installation
     softwareForm.post(route('software.install'), {
         onSuccess: () => {
             closeInstallModal();
@@ -176,7 +157,7 @@ const submitInstall = async () => {
         },
         onError: (errors) => {
             console.error("Install failed", errors);
-            alert('Error al instalar software. Revise los campos.');
+            alert('Error al instalar software. Revise los campos: ' + JSON.stringify(errors));
         }
     });
 };
@@ -801,93 +782,114 @@ const submitUpgrade = () => {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-        <!-- NEW INSTALLATION MODAL -->
+        <!-- INSTALLATION MODAL -->
         <Dialog :open="isInstallModalOpen" @update:open="val => !val && closeInstallModal()">
             <DialogContent class="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <div class="flex items-center gap-3">
                         <div class="h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600"><Plus class="h-5 w-5" /></div>
                         <div>
-                            <DialogTitle class="text-xl font-bold">Nueva Instalación de Software</DialogTitle>
+                            <DialogTitle class="text-xl font-bold">Instalación de Software</DialogTitle>
                             <DialogDescription>
-                                Gestione el software instalado en este activo.
+                                Seleccione el software autorizado y asigne la licencia correspondiente.
                             </DialogDescription>
                         </div>
                     </div>
-                    <!-- TABS -->
-                    <div class="flex p-1 bg-slate-100 rounded-lg mt-4 w-fit">
-                        <button @click="installMode = 'existing'" class="px-4 py-1.5 text-sm font-bold rounded-md transition-all" :class="installMode === 'existing' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'">Seleccionar Existente</button>
-                        <button @click="installMode = 'new'" class="px-4 py-1.5 text-sm font-bold rounded-md transition-all" :class="installMode === 'new' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'">Registrar Nuevo</button>
-                    </div>
                 </DialogHeader>
 
-                <div class="grid gap-6 py-6" v-if="installMode === 'existing'">
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                        <!-- Software -->
-                        <div class="space-y-1.5 md:col-span-1">
-                            <Label class="text-sm font-bold text-slate-700">Software (Catálogo)</Label>
-                             <Select v-model="selectedSoftwareId" @update:modelValue="() => { softwareForm.software_version_id = ''; }">
-                                <SelectTrigger class="h-11 bg-white border-slate-200 shadow-sm"><SelectValue placeholder="Buscar software..." /></SelectTrigger>
+                <div class="grid gap-6 py-4">
+                     <!-- 1. Strict Software Selection -->
+                     <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                         <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="bg-slate-800 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                            Seleccionar Software (Catálogo Oficial)
+                         </h3>
+                         
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                            <!-- Software -->
+                            <div class="space-y-1.5 md:col-span-1">
+                                <Label class="text-xs font-bold uppercase text-slate-500">Software</Label>
+                                 <Select v-model="selectedSoftwareId" @update:modelValue="() => { softwareForm.software_version_id = ''; }">
+                                    <SelectTrigger class="h-10 bg-white border-slate-300"><SelectValue placeholder="Buscar en catálogo..." /></SelectTrigger>
+                                    <SelectContent class="z-[100] max-h-[300px]">
+                                        <SelectItem v-for="soft in softwareCatalog" :key="soft.id" :value="soft.id.toString()">{{ soft.nombre }}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+    
+                            <!-- Version -->
+                            <div class="space-y-1.5 md:col-span-1">
+                                <Label class="text-xs font-bold uppercase text-slate-500">Versión Aprobada</Label>
+                                <Select v-model="softwareForm.software_version_id" :disabled="!selectedSoftwareId">
+                                    <SelectTrigger class="h-10 bg-white border-slate-300"><SelectValue placeholder="Seleccione versión..." /></SelectTrigger>
+                                    <SelectContent class="z-[100] max-h-[300px]">
+                                        <SelectItem v-for="ver in availableVersions" :key="ver.id" :value="ver.id.toString()">{{ ver.version }}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <p v-if="!selectedSoftwareId" class="text-xs text-slate-500 mt-2 italic">* Si el software no aparece, contacte al Administrador de Estándares.</p>
+                     </div>
+
+                    <!-- 2. Flexible License Selection -->
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                           <span class="bg-slate-800 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                           Asignación de Licencia
+                        </h3>
+                        
+                        <!-- License Mode Tabs -->
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <button @click="licenseMode = 'none'" class="px-3 py-1.5 text-xs font-bold rounded-md border" 
+                                :class="licenseMode === 'none' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 hover:bg-slate-100 hover:border-slate-300'">
+                                Sin Licencia / Gratis
+                            </button>
+                            <button @click="licenseMode = 'shared'" class="px-3 py-1.5 text-xs font-bold rounded-md border" 
+                                :class="licenseMode === 'shared' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 hover:bg-slate-100 hover:border-indigo-200'">
+                                Usar Compartida (Volumen)
+                            </button>
+                            <button @click="licenseMode = 'oem'" class="px-3 py-1.5 text-xs font-bold rounded-md border" 
+                                :class="licenseMode === 'oem' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 hover:bg-slate-100 hover:border-emerald-200'">
+                                Registrar Nueva (OEM)
+                            </button>
+                        </div>
+                        
+                        <!-- Mode Content -->
+                        <div v-if="licenseMode === 'none'" class="text-sm text-slate-500 p-2 bg-white rounded border border-slate-200">
+                            Se registrará como software gratuito o sin licencia vinculada.
+                        </div>
+
+                        <div v-if="licenseMode === 'shared'" class="space-y-2">
+                             <Label class="text-xs font-bold uppercase text-slate-500">Licencia Corporativa Disponible</Label>
+                             <Select v-model="softwareForm.license_id">
+                                <SelectTrigger class="h-10 bg-white border-slate-300"><SelectValue placeholder="Seleccione licencia disponible..." /></SelectTrigger>
                                 <SelectContent class="z-[100] max-h-[300px]">
-                                    <SelectItem v-for="soft in softwareCatalog" :key="soft.id" :value="soft.id.toString()">{{ soft.nombre }}</SelectItem>
+                                    <!-- Filter Logic: Show only non-OEM or specified volume licenses -->
+                                    <SelectItem v-for="lic in availableLicenses.filter(l => l.tipo !== 'OEM')" :key="lic.id" :value="lic.id.toString()">
+                                        {{ lic.nombre }} ({{ lic.seats_used }}/{{ lic.seats_total }})
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
 
-                        <!-- Version -->
-                        <div class="space-y-1.5 md:col-span-1">
-                            <Label class="text-sm font-bold text-slate-700">Versión</Label>
-                            <Select v-model="softwareForm.software_version_id" :disabled="!selectedSoftwareId">
-                                <SelectTrigger class="h-11 bg-white border-slate-200 shadow-sm"><SelectValue placeholder="Seleccione versión..." /></SelectTrigger>
-                                <SelectContent class="z-[100] max-h-[300px]">
-                                    <SelectItem v-for="ver in availableVersions" :key="ver.id" :value="ver.id.toString()">{{ ver.version }}</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <div v-if="licenseMode === 'oem'" class="space-y-2 bg-emerald-50 p-3 rounded border border-emerald-100">
+                             <Label class="text-xs font-bold uppercase text-emerald-800">Clave de Producto (Product Key)</Label>
+                             <Input v-model="softwareForm.new_license_key" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" class="bg-white border-emerald-200 font-mono focus:border-emerald-500 focus:ring-emerald-500" />
+                             <p class="text-xs text-emerald-600">Esta licencia quedará vinculada permanentemente a este activo ({{ localAsset.codigo_activo }}).</p>
                         </div>
+                    </div>
+                    
+                    <!-- 3. Observations -->
+                    <div class="space-y-1.5">
+                        <Label class="text-sm font-bold text-slate-700">Notas Adicionales</Label>
+                        <Input v-model="softwareForm.observaciones" placeholder="Ej: Solicitado por Gerencia..." class="h-10 bg-slate-50 border-slate-200" />
                     </div>
                 </div>
 
-                <div class="grid gap-6 py-6" v-if="installMode === 'new'">
-                    <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100 mb-2">
-                        <p class="text-sm text-emerald-800 font-medium">Registrando nuevo software en catálogo.</p>
-                    </div>
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                        <div class="space-y-1.5 md:col-span-1">
-                            <Label class="text-sm font-bold text-slate-700">Nombre del Software</Label>
-                            <Input v-model="softwareForm.new_software_name" placeholder="Ej: Adobe Photoshop 2024" class="h-11 shadow-sm" />
-                        </div>
-                        <div class="space-y-1.5 md:col-span-1">
-                             <Label class="text-sm font-bold text-slate-700">Versión Inicial</Label>
-                            <Input v-model="softwareForm.new_software_version" placeholder="Ej: 25.0.0" class="h-11 shadow-sm" />
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Common Fields -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-100">
-                     <!-- License -->
-                    <div class="space-y-1.5 md:col-span-1">
-                        <Label class="text-sm font-bold text-slate-700">Vincular Licencia</Label>
-                        <Select v-model="softwareForm.license_id">
-                            <SelectTrigger class="h-11 bg-white border-slate-200 shadow-sm"><SelectValue placeholder="Opcional (Gratuito)" /></SelectTrigger>
-                            <SelectContent class="z-[100] max-h-[300px]">
-                                <SelectItem value="">Sin Licencia (Gratis)</SelectItem>
-                                <SelectItem v-for="lic in availableLicenses" :key="lic.id" :value="lic.id.toString()">{{ lic.nombre }}</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <!-- Observations (Full width) -->
-                    <div class="space-y-1.5 md:col-span-1">
-                        <Label class="text-sm font-bold text-slate-700">Notas / Ticket</Label>
-                        <Input v-model="softwareForm.observaciones" placeholder="Ej: Solicitado en Ticket #1234..." class="h-11 bg-white border-slate-200 shadow-sm" />
-                    </div>
-                </div>
-
-                <DialogFooter class="gap-2 sm:gap-0 mt-6">
-                    <Button variant="ghost" @click="closeInstallModal" class="h-11">Cancelar</Button>
-                    <Button type="button" @click="submitInstall" :disabled="softwareForm.processing" class="bg-emerald-600 hover:bg-emerald-700 text-white h-11 px-8 shadow-md">
-                        {{ installMode === 'new' ? 'Guardar e Instalar' : 'Instalar Ahora' }}
+                <DialogFooter class="gap-2 sm:gap-0 mt-2">
+                    <Button variant="ghost" @click="closeInstallModal" class="h-10">Cancelar</Button>
+                    <Button type="button" @click="submitInstall" :disabled="softwareForm.processing" class="bg-slate-900 hover:bg-slate-800 text-white h-10 px-6 shadow-md">
+                        Confirmar Instalación
                     </Button>
                 </DialogFooter>
             </DialogContent>

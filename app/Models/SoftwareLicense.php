@@ -13,18 +13,26 @@ class SoftwareLicense extends Model
 
     protected $fillable = [
         'nombre',
+        'software_id', // Link to Catalog
         'key', // clave del software
         'tipo', // OEM, Volume, Subscription, Free
         'seats_total',
         'seats_used',
         'fecha_expiracion',
         'proveedor_id',
+        'scope',
+        'city_id',
         'observaciones'
     ];
 
     protected $casts = [
         'fecha_expiracion' => 'date',
     ];
+
+    public function software()
+    {
+        return $this->belongsTo(Software::class, 'software_id');
+    }
 
     public function proveedor()
     {

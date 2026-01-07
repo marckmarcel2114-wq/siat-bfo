@@ -18,12 +18,51 @@ class SoftwareController extends Controller
      */
     public function index(Request $request)
     {
-        $licenses = SoftwareLicense::with('proveedor')
+        // UNIFIED DASHBOARD STRATEGY:
+        // We want to show "Software Catalog Items" that have installations OR licenses.
+        
+        // 1. Fetch all Software marked as 'active' or existing in catalog
+        // Eager load:
+        // - versions.installations (to count total installs)
+        // - licenses (to count available seats)
+        
+        $softwareStats = \App\Models\Software::with(['versions.installations', 'licenses'])
             ->orderBy('nombre')
-            ->get();
+            ->get()
+            ->map(function ($soft) {
+                $totalInstalls = $soft->versions->sum(fn($v) => $v->installations->count());
+                
+                // Calculate Licensed Seats Breakdown
+                $totalSeats = $soft->licenses->sum('seats_total');
+                $usedSeats = $soft->licenses->sum('seats_used');
+                
+                // Identify if it has "Free" or "Unlimited" licenses
+                $hasFreeLicense = $soft->licenses->contains('tipo', 'Free');
+                
+                return [
+                    'id' => $soft->id,
+                    'nombre' => $soft->nombre,
+                    'fabricante' => $soft->fabricante,
+                    'installations_count' => $totalInstalls,
+                    'seats_total' => $totalSeats,
+                    'seats_used' => $usedSeats,
+                    'coverage_percent' => $totalInstalls > 0 ? min(100, round(($usedSeats / $totalInstalls) * 100)) : 100,
+                    'licenses' => $soft->licenses->map(fn($l) => [
+                        'id' => $l->id,
+                        'tipo' => $l->tipo,
+                        'seats_total' => $l->seats_total,
+                        'seats_used' => $l->seats_used,
+                        'scope' => $l->scope
+                    ])
+                ];
+            });
+
+        // Also fetch "Orphaned" Licenses (not linked to software_id yet) for legacy compatibility
+        $orphanedLicenses = SoftwareLicense::whereNull('software_id')->with('proveedor')->get();
 
         return Inertia::render('Software/Index', [
-            'licenses' => $licenses
+            'softwareStats' => $softwareStats,
+            'orphanedLicenses' => $orphanedLicenses
         ]);
     }
 
@@ -33,7 +72,8 @@ class SoftwareController extends Controller
     public function create()
     {
         return Inertia::render('Software/Create', [
-            'proveedores' => Proveedor::orderBy('nombre')->get()
+            'proveedores' => Proveedor::orderBy('nombre')->get(),
+            'softwareCatalog' => \App\Models\Software::orderBy('nombre')->get(['id', 'nombre'])
         ]);
     }
 
@@ -43,6 +83,7 @@ class SoftwareController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'software_id' => 'required|exists:software,id', // NEW: Link to Catalog required
             'nombre' => 'required|string|max:255',
             'key' => 'nullable|string',
             'tipo' => 'required|string',
@@ -54,7 +95,7 @@ class SoftwareController extends Controller
 
         SoftwareLicense::create($validated);
 
-        return redirect()->route('software.index')->with('success', 'Licencia registrada correctamente.');
+        return redirect()->route('software.index')->with('success', 'Licencia registrada y vinculada correctamente.');
     }
 
     /**
@@ -136,57 +177,87 @@ class SoftwareController extends Controller
     {
         $validated = $request->validate([
             'activo_id' => 'required|exists:activos,id',
-            'license_id' => 'nullable|exists:software_licenses,id',
-            'software_version_id' => 'nullable|exists:software_versions,id',
+            'software_version_id' => 'required|exists:software_versions,id', // Strict: Version ID required
+            
+            // License Options:
+            'license_id' => 'nullable|exists:software_licenses,id', // Option A: Existing Shared License
+            'new_license_key' => 'nullable|string|min:5', // Option B: New OEM License
+            
             'observaciones' => 'nullable|string'
         ]);
-        
-        if (empty($validated['license_id']) && empty($validated['software_version_id'])) {
-            return back()->with('error', 'Debe seleccionar un Software o una Licencia.');
-        }
 
         try {
             DB::transaction(function () use ($validated) {
                 $license = null;
 
-                // 1. Handle License Logic
-                if (!empty($validated['license_id'])) {
+                // 1. License Handling Strategy
+                if (!empty($validated['new_license_key'])) {
+                    // STRATEGY B: Register NEW OEM License
+                    // Create a specific 1-seat license for this asset
+                    // Needs Software Name: We have version_id, lets get the name
+                    $version = \App\Models\SoftwareVersion::with('software')->findOrFail($validated['software_version_id']);
+                    $softwareName = $version->software->nombre;
+                    
+                    // Determine Scope (Ideally from Asset's City)
+                    $asset = Activo::with('ubicacion.ciudad')->findOrFail($validated['activo_id']);
+                    $cityId = $asset->ubicacion?->ciudad_id;
+
+                    $license = SoftwareLicense::create([
+                        'nombre' => "OEM: {$softwareName} ({$version->version})",
+                        'key' => $validated['new_license_key'],
+                        'tipo' => 'OEM',
+                        'seats_total' => 1,
+                        'seats_used' => 0, // Will increment below
+                        'scope' => 'CITY',
+                        'city_id' => $cityId,
+                        'observaciones' => "Licencia OEM generada automáticamente para el activo: {$asset->codigo_activo}"
+                    ]);
+
+                } elseif (!empty($validated['license_id'])) {
+                    // STRATEGY A: Use Existing Shared License
                     $license = SoftwareLicense::lockForUpdate()->findOrFail($validated['license_id']);
                     
-                    // Check duplicate license on asset
-                    $exists = SoftwareInstallation::where('license_id', $license->id)
-                        ->where('activo_id', $validated['activo_id'])
-                        ->exists();
-                    
-                    if ($exists) {
-                        throw new \Exception('El software ya se encuentra instalado en este equipo.');
-                    }
-
+                    // Seat Availability Check
                     if ($license->seats_total > 0 && $license->seats_used >= $license->seats_total) {
-                         throw new \Exception('No hay asientos disponibles en esta licencia.');
+                         throw new \Exception("La licencia seleccionada no tiene cupos disponibles ({$license->seats_used}/{$license->seats_total}).");
                     }
                 }
                 
-                // 2. Handle Version Logic (Duplicate check)
-                if (!empty($validated['software_version_id'])) {
-                     $existsVer = SoftwareInstallation::where('software_version_id', $validated['software_version_id'])
-                        ->where('activo_id', $validated['activo_id'])
-                        ->exists();
-                     if ($existsVer) throw new \Exception('Esta versión de software ya está instalada en el equipo.');
-                }
+                // 2. Duplicate Check (Version based)
+                $existsVer = SoftwareInstallation::where('software_version_id', $validated['software_version_id'])
+                    ->where('activo_id', $validated['activo_id'])
+                    ->exists();
+                if ($existsVer) throw new \Exception('Esta versión de software ya está instalada en el equipo.');
 
+                // 3. Create Installation
                 SoftwareInstallation::create([
                     'activo_id' => $validated['activo_id'],
                     'license_id' => $license ? $license->id : null,
-                    'software_version_id' => $validated['software_version_id'] ?? null,
+                    'software_version_id' => $validated['software_version_id'],
                     'fecha_instalacion' => now(),
                     'registrado_por' => Auth::id(),
                     'observaciones' => $validated['observaciones']
                 ]);
 
+                // 4. Increment Seat Usage
                 if ($license) {
                     $license->increment('seats_used');
                 }
+                
+                // 5. Create Log (History)
+                // Retrieve names for logging
+                if (!isset($version)) {
+                     $version = \App\Models\SoftwareVersion::with('software')->find($validated['software_version_id']);
+                }
+                \App\Models\SoftwareLog::create([
+                     'asset_id' => $validated['activo_id'],
+                     'action' => 'install',
+                     'software_name' => $version->software->nombre,
+                     'version' => $version->version,
+                     'performed_at' => now(),
+                     'performed_by' => Auth::id(),
+                     'notes' => "Instalación Inicial. " . ($license ? "Licencia: {$license->tipo}" : "Sin Licencia")
+                ]);
             });
 
             return back()->with('success', 'Software instalado correctamente.');

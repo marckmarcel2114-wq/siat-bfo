@@ -149,6 +149,14 @@ const footerNavItems: NavItem[] = [
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/software')" :tooltip="'Software / Licencias'" as-child>
+                            <Link href="/software">
+                                <Disc />
+                                <span>Software / Licencias</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarGroup>
 
@@ -192,14 +200,6 @@ const footerNavItems: NavItem[] = [
                             <Link href="/models">
                                 <Settings2 />
                                 <span>Modelos</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="default" :is-active="$page.url.startsWith('/software-catalog')" :tooltip="'Software'" as-child>
-                            <Link href="/software-catalog">
-                                <Disc />
-                                <span>Software</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
